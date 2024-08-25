@@ -1,4 +1,4 @@
-import One from './components/one.jsx'
+import One from './components/One.jsx'
 
 function App() {
 
