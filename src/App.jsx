@@ -4,326 +4,383 @@ function App() {
 
   return (
     <>
-      <One topic={"Visiting Card"} text={
+      <One topic={"Selection Sort"} text={
         `
-<?xml version="1.0" encoding="utf-8"?> 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-xmlns:app="http://schemas.android.com/apk/res-auto" 
-xmlns:tools="http://schemas.android.com/tools" 
-android:layout_width="match_parent" 
-android:layout_height="match_parent" 
-android:background="#FFFFFF" 
-tools:context=".MainActivity"> 
-<TextView 
-android:id="@+id/textView4" 
-android:layout_width="371dp" 
-android:layout_height="wrap_content" 
-android:layout_alignParentStart="true" 
-android:layout_alignParentLeft="true" 
-android:layout_alignParentEnd="true" 
-android:layout_alignParentRight="true" 
-android:layout_alignParentBottom="true" 
-android:layout_marginStart="28dp" 
-android:layout_marginLeft="28dp" 
-android:layout_marginEnd="12dp" 
-android:layout_marginRight="12dp" 
-android:layout_marginBottom="219dp" 
-android:text="Address:ASKB Campus, Anandnagar, | Bangalore - 560 024" 
-android:textAlignment="center" 
-android:textSize="24sp" /> 
-<TextView 
-android:id="@+id/textView5" 
-android:layout_width="250dp" 
-android:layout_height="wrap_content" 
-android:layout_alignParentStart="true" 
-android:layout_alignParentLeft="true" 
-android:layout_alignParentEnd="true" 
-android:layout_alignParentRight="true" 
-android:layout_alignParentBottom="true" 
-android:layout_marginStart="87dp" 
-android:layout_marginLeft="87dp" 
-android:layout_marginEnd="73dp" 
-android:layout_marginRight="73dp"
-android:layout_marginBottom="157dp" 
-android:text="Ph No: 9108380566" 
-android:textAlignment="center" 
-android:textSize="24sp" /> 
-<TextView 
-android:id="@+id/textView6" 
-android:layout_width="367dp" 
-android:layout_height="wrap_content" 
-android:layout_alignParentStart="true" 
-android:layout_alignParentLeft="true" 
-android:layout_alignParentEnd="true" 
-android:layout_alignParentRight="true" 
-android:layout_alignParentBottom="true" 
-android:layout_marginStart="25dp" 
-android:layout_marginLeft="25dp" 
-android:layout_marginEnd="19dp" 
-android:layout_marginRight="19dp" 
-android:layout_marginBottom="64dp" 
-android:text="Email Id: uzma.sulthana@atria.edu" 
-android:textAlignment="center" 
-android:textSize="24sp" /> 
-<TextView 
-android:id="@+id/textView3" 
-android:layout_width="367dp" 
-android:layout_height="66dp" 
-android:layout_alignParentStart="true" 
-android:layout_alignParentLeft="true" 
-android:layout_alignParentEnd="true" 
-android:layout_alignParentRight="true" 
-android:layout_alignParentBottom="true" 
-android:layout_marginStart="32dp" 
-android:layout_marginLeft="32dp" 
-android:layout_marginEnd="12dp" 
-android:layout_marginRight="12dp" 
-android:layout_marginBottom="287dp" 
-android:text="Assistant Professor-ISE" 
-android:textAlignment="center" 
-android:textSize="24sp" /> 
-<ImageView 
-android:id="@+id/imageView3" 
-android:layout_width="155dp" 
-android:layout_height="98dp" 
-android:layout_alignParentEnd="true"
- android:layout_alignParentRight="true" 
-        android:layout_alignParentBottom="true" 
-        android:layout_marginEnd="12dp" 
-        android:layout_marginRight="12dp" 
-        android:layout_marginBottom="495dp" 
-        app:srcCompat="@drawable/aitlogo" /> 
- 
-    <View 
-        android:id="@+id/view" 
-        android:layout_width="wrap_content" 
-        android:layout_height="4dp" 
-        android:layout_alignParentBottom="true" 
-        android:layout_marginBottom="487dp" 
-        android:background="#4444" /> 
- 
-    <TextView 
-        android:id="@+id/textView2" 
-        android:layout_width="176dp" 
-        android:layout_height="wrap_content" 
-        android:layout_alignParentStart="true" 
-        android:layout_alignParentLeft="true" 
-        android:layout_alignParentEnd="true" 
-        android:layout_alignParentRight="true" 
-        android:layout_alignParentBottom="true" 
-        android:layout_marginStart="95dp" 
-        android:layout_marginLeft="95dp" 
-        android:layout_marginEnd="140dp" 
-        android:layout_marginRight="140dp" 
-        android:layout_marginBottom="401dp" 
-        android:text="Uzma Sulthana" 
-        android:textAlignment="center" 
-        android:textSize="24sp" 
-        android:textStyle="bold" /> 
- 
-    <TextView 
-        android:id="@+id/textView7" 
-        android:layout_width="wrap_content" 
-        android:layout_height="wrap_content" 
-        android:layout_alignParentBottom="true" 
-        android:layout_marginEnd="99dp" 
-        android:layout_marginRight="99dp" 
-        android:layout_marginBottom="495dp" 
-        android:layout_toStartOf="@+id/imageView3" 
-        android:layout_toLeftOf="@+id/imageView3" 
-        android:text="AIT" 
-        android:textColor="#E91E63"
-        android:textSize="36sp" 
-android:textStyle="bold" /> 
-</RelativeLayout> 
-        `
+#include <stdio.h>  
+void selection(int arr[], int n)  
+{  
+    int i, j, small;  
+    for (i = 0; i < n-1; i++)
+    {  
+        small = i;
+        for (j = i+1; j < n; j++)  
+        if (arr[j] < arr[small])  
+            small = j; 
+    int temp = arr[small];  
+    arr[small] = arr[i];  
+    arr[i] = temp;  
+    }  
+}  
+void printArr(int a[], int n)
+{  
+    int i;  
+    for (i = 0; i < n; i++)  
+        printf("%d ", a[i]);  
+} 
+int main()  
+{  
+    int a[] = { 12, 31, 25, 8, 32, 17 };  
+    int n = sizeof(a) / sizeof(a[0]);  
+    printf("Before sorting array elements are - \n");  
+    printArr(a, n);  
+    selection(a, n);  
+    printf("\nAfter sorting array elements are - \n");    
+    printArr(a, n);  
+    return 0;  
+}
+`
       } />
 
-      <One topic={"Calculator"} text={
+      <One topic={"Knapsack DP"} text={
         `
-import androidx.appcompat.app.AppCompatActivity; 
-import android.os.Bundle; 
-import android.view.View; 
-import android.widget.Button; 
-import android.widget.EditText; 
-import android.widget.TextView; 
-public class MainActivity extends AppCompatActivity { 
-EditText e1,e2; 
-TextView tv; 
-@Override 
-protected void onCreate(Bundle savedInstanceState) { 
-super.onCreate(savedInstanceState); 
-setContentView(R.layout.activity_main); 
-e1 =(EditText)findViewById(R.id.editText1); 
-e2 = (EditText)findViewById(R.id.editText2); 
-tv= (TextView)findViewById(R.id.tv1); 
-} 
-public void add(View v){ 
-int a1=Integer.parseInt(e1.getText().toString()); 
-int a2= Integer.parseInt(e2.getText().toString()); 
-int result=a1+a2;
-tv.setText(""+result); 
-} 
-public void sub(View v){ 
-int a1=Integer.parseInt(e1.getText().toString()); 
-int a2= Integer.parseInt(e2.getText().toString()); 
-int result=a1-a2; 
-tv.setText(""+result); 
-} 
-public void mul(View v){ 
-int a1=Integer.parseInt(e1.getText().toString()); 
-int a2= Integer.parseInt(e2.getText().toString()); 
-int result=a1*a2; 
-tv.setText(""+result); 
-} 
-public void div(View v){ 
-float a1=Integer.parseInt(e1.getText().toString()); 
-float a2= Integer.parseInt(e2.getText().toString()); 
-float result=a1/a2; 
-tv.setText(""+result); 
-} 
+#include <stdio.h>
+#define MAX 150
+knap(int n,int m); int big(int a, int b);
+w[MAX];
+int p[MAX];
+int v[MAX][MAX];
+int main() {
+    int profit, n, m;
+    //Read no of items n
+    //Capacity c
+    //weights and profits
+    //initialize first row and column elements to zero
+    profit  = knap(n,m);
+    //print profit
 }
-        `
-      } />
-      <One topic={"Wallpaper"} text={
-        `
-package com.example.wallpaperchangeapplication; 
-import androidx.appcompat.app.AppCompatActivity; 
-import android.app.WallpaperManager; 
-import android.graphics.Bitmap; 
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable; 
-import android.graphics.drawable.Drawable; 
-import android.os.Bundle; 
-import android.os.Handler; 
-import android.view.View; 
-import android.widget.Button; 
-import android.widget.Toast; 
-import java.io.IOException; 
-import java.util.Timer; 
-import java.util.TimerTask; 
-public class MainActivity extends AppCompatActivity { 
-Button wallpaperChange; 
-Timer mytimer; 
-Drawable drawable; 
-WallpaperManager wpm; 
-int prev=1; 
-@Override 
-protected void onCreate(Bundle savedInstanceState) { 
-super.onCreate(savedInstanceState); 
-setContentView(R.layout.activity_main); 
-mytimer=new Timer(); 
-wpm = WallpaperManager.getInstance(this); 
-wallpaperChange=(Button)findViewById(R.id.button1); 
-wallpaperChange.setOnClickListener(new View.OnClickListener() { 
-@Override public void onClick(View view) { 
-setwallpaper(); 
-} 
-}); 
-} 
-private void setwallpaper() { 
-Toast.makeText(this,"setting Wallpaper please wait.",Toast.LENGTH_LONG).show(); 
-mytimer.schedule(new TimerTask() { 
-@Override 
-public void run() 
-{ 
-if(prev==1) { 
-drawable = getResources().getDrawable(R.drawable.i1); prev = 2; 
-} 
-else if(prev==2) { 
-drawable = getResources().getDrawable(R.drawable.i2); prev=3; 
+
+int knap(int n, int m) {
+    for (i=1 to n)
+    for(j=1 to m)
+    if(j-w[i]<0) v[i][j] = v[i-1][j];
+    else v[i][j] = big(v[i-1][j], p[i]+v[i-1][j-w[i]]);
+    return v[n][m];
 }
-else if(prev==3) { 
-drawable = getResources().getDrawable(R.drawable.i3); prev=4; 
-} 
-else if(prev==4) { 
-drawable = getResources().getDrawable(R.drawable.i4); prev=5; 
-} 
-else if(prev==5) { 
-drawable = getResources().getDrawable(R.drawable.i5); prev=1; 
-} 
-Bitmap wallpaper = ((BitmapDrawable)drawable).getBitmap(); try { 
-wpm.setBitmap(wallpaper); 
-} 
-catch (IOException e) 
-{ e.printStackTrace(); 
-} 
-} 
-},0,30000); 
-} 
-} 
-        `
+`
       } />
 
-      <One topic={"Counter"} text={
+      <One topic={"Knapsack Greedy"} text={
         `
-package com.example.counterapplication; 
-import androidx.appcompat.app.AppCompatActivity; 
-import android.os.Bundle; 
-import android.os.Handler; 
-import android.view.View; 
-import android.widget.Button; 
-import android.widget.TextView; 
-public class MainActivity extends AppCompatActivity { 
-TextView txtCounter; 
-Button btn_start,btn_stop; 
-int count=0; 
-Handler customHandler=new Handler(); 
-@Override 
-protected void onCreate(Bundle savedInstanceState) { 
-super.onCreate(savedInstanceState); 
-setContentView(R.layout.activity_main); 
-txtCounter= (TextView)findViewById(R.id.textView2); 
-btn_start =(Button)findViewById(R.id.button1); 
-btn_stop=(Button)findViewById(R.id.button2); 
-btn_start.setOnClickListener(new View.OnClickListener() { 
-@Override 
-public void onClick(View v) { 
-customHandler.postDelayed(updateTimerThread,0); 
-} 
-}); 
-btn_stop.setOnClickListener(new View.OnClickListener() { 
-@Override 
-public void onClick(View v) { 
-customHandler.removeCallbacks(updateTimerThread); 
-} 
-}); 
+#include <stdio.h>
+#include <conio.h>
+
+void knapsack(int n, float weight[], float profit[], float capacity)
+{
+    float x[20], total_profit;
+    int i, j, u;
+    u = capacity;
+    for (i = 0; i < n; i++)
+        x[i] = 0.0;
+    total_profit = 0.0;
+    for (i = 0; i < n; i++)
+    {
+        if (weight[i] > u)
+            break;
+        else
+        {
+            x[i] = 1.0;
+            total_profit = total_profit + profit[i];
+            u = u - weight[i];
+        }
+    }
+    if (i < n)
+        x[i] = u / weight[i];
+    total_profit = total_profit + (x[i] * profit[i]);
+    for (i = 0; i < n; i++)
+        printf("%f\t", x[i]);
+    printf("\nMaximum profit is:- %f", total_profit);
 }
-private final Runnable updateTimerThread =new Runnable() { 
-@Override 
-public void run() { 
-txtCounter.setText(""+count); 
-customHandler.postDelayed(this,1000); 
-count++; 
-} 
-}; 
+
+void main() {
+    float weight[20], profit[20], capacity;
+    int num, i, j;
+    float ratio[20], temp;
+    printf("Enter the no. of objects:- ");
+    scanf("%d", &num);
+    printf("Enter the weights and profits of each object:- ");
+    for (i = 0; i < num; i++)
+    {
+        scanf("%f %f", &weight[i], &profit[i]);
+    }
+    printf("Enter the capacity of knapsack:- ");
+    scanf("%f", &capacity);
+    for (i = 0; i < num; i++)
+    {
+        ratio[i] = profit[i] / weight[i];
+    }
+    for (i = 0; i < num; i++)
+    {
+        for (j = i + 1; j < num; j++)
+        {
+            if (ratio[i] < ratio[j])
+            {
+                temp = ratio[j];
+                ratio[j] = ratio[i];
+                ratio[i] = temp;
+                temp = weight[j];
+                weight[j] = weight[i];
+                weight[i] = temp;
+                temp = profit[j];
+                profit[j] = profit[i];
+                profit[i] = temp;
+            }
+        }
+    }
+    knapsack(num, weight, profit, capacity);
 }
         `
       } />
 
-      <One topic={"Text2Speech"} text={
+      <One topic={"Dijkstras"} text={
         `
-private final Runnable updateTimerThread =new Runnable() { 
-@Override 
-public void run() { 
-txtCounter.setText(""+count); 
-customHandler.postDelayed(this,1000); 
-count++; 
-} 
-}; 
+#include<stdio.h>
+int minimum(int a, int b)
+{
+    return a<b?a:b;
 }
-if(status!=TextToSpeech.ERROR){ 
-t1.setLanguage(Locale.UK); 
-} 
-} 
-}); 
-} 
-public void convert(View V){ 
-String tospeak=e1.getText().toString(); 
-t1.speak(tospeak,TextToSpeech.QUEUE_FLUSH,null); 
-} 
+int main() {
+    int cost[20][20], s[20], d[20];
+    int source, n, mini,u;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+    printf("Enter the weights of the graphs: ");
+    for(int i=1; i<=n; i++)
+        for(int j=1; j<=n; j++)
+            scanf("%d", &cost[i][j]);
+    printf("Enter the source vertex: ");
+    scanf("%d", &source);
+    for(int i=1; i<=n; i++) {
+        s[i] = 0;
+        d[i] = cost[source][i];
+    }
+    s[source] = 1;
+    for(int i=1; i<n; i++) {
+        mini = 999;
+        for(int j=1; j<=n; j++) {
+            if(s[j] == 0 && d[j] < mini) {
+                mini = d[j];
+                u = j;
+            }
+        }
+        s[u] = 1;
+        for(int k=1; k<=n; k++) {
+            if(s[k] == 0) {
+                d[k] = minimum(d[k], d[u] + cost[u][k]);
+            }
+        }
+    }
+    printf("The shortest path from the source vertex %d to all other vertices are: \n", source);
 }
         `
+      } />
+
+      <One topic={"Sum of subsets"} text={
+        `
+#include <stdio.h>
+
+void printSubset(int subset[], int subsetSize) {
+    printf("{ ");
+    for (int i = 0; i < subsetSize; i++) {
+        printf("%d ", subset[i]);
+    }
+    printf("}\n");
+}
+
+void findSubsets(int arr[], int n, int target, int index, int subset[], int subsetSize) {
+    if (target == 0) {
+        printSubset(subset, subsetSize);
+        return;
+    }
+    if (index >= n || target < 0) {
+        return;
+    }
+    subset[subsetSize] = arr[index];
+    findSubsets(arr, n, target - arr[index], index + 1, subset, subsetSize + 1);
+    findSubsets(arr, n, target, index + 1, subset, subsetSize);
+}
+
+int main() {
+    int arr[] = {1, 2, 3, 4, 5};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int target = 5;
+    
+    int subset[n];
+    
+    printf("Subsets with sum equal to %d are:\n", target);
+    findSubsets(arr, n, target, 0, subset, 0);
+    
+    return 0;
+}
+
+`
+      } />
+
+      <One topic={"Kruskals"} text={
+`
+#include<stdio.h>
+int parent[10], t[10][3], n[10][10];
+int find(int i)
+{
+    while(parent[i])
+        i = parent[i];
+    return i;
+}
+int uni(int i, int j)
+{
+    if(i != j)
+    {
+        parent[j] = i;
+        return 1;
+    }
+    return 0;
+}
+void kruskal(int n) {
+    int k,i,j,u,v,min, r,c,sum=0;
+    for(k=1; k<n; k++)
+    {
+        min = 999;
+        for(i=1; i<=n; i++)
+        {
+            for(j=1; j<=n; j++)
+            {
+                if(i==j) continue;
+                if(n[i][j]<min) {
+                    v = find(i);
+                    u = find(j);
+                    if(u!=v) {
+                        min = n[i][j];
+                        r = i;
+                        c = j;
+                    }
+                }  
+            }
+            uni(r, find(c));
+            t[k][1] = r;
+            t[k][2] = c;
+            sum += min;
+        } 
+    }
+    printf("cost of spanning tree = %d\n", sum);
+    for(i=1; i<n; i++)
+        printf("%d %d\n", t[i][1], t[i][2]);
+    
+}
+
+int main() {
+    int i,j,n;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+    printf("Enter the cost matrix: ");
+    for(i=1; i<=n; i++)
+    {
+        for(j=1; j<=n; j++)
+        {
+            scanf("%d", &n[i][j]);
+            parent[j] = 0;
+        }
+    }
+    kruskal(n);
+    return 0;
+}
+`
+      } />
+
+      <One topic={"Prims"} text={
+`
+#include<stdio.h>
+int i,j,k,v,u,n,ne=1;
+int min,mincost=0,cost[9][9],visited[9];
+int main()
+{
+    printf("\n Enter the number of nodes:");
+    scanf("%d",&n);
+    printf("\n Enter the cost matrix:\n");
+    for(i=1;i<=n;i++)
+    {
+        for(j=1;j<=n;j++)
+        {
+            scanf("%d",&cost[i][j]);
+            if(cost[i][j]==0)
+                cost[i][j]=999;
+        }
+    }
+    visited[1]=1;
+    printf("\n");
+    while(ne<n)
+    {
+        for(i=1,min=999;i<=n;i++)
+        {
+            for(j=1;j<=n;j++)
+            {
+                if(cost[i][j]<min)
+                {
+                    if(visited[i]!=0)
+                    {
+                        min=cost[i][j];
+                        u=i;
+                        v=j;
+                    }
+                }
+            }
+        }
+        if(visited[u]==0 || visited[v]==0)
+        {
+            printf("\n Edge %d:(%d %d) cost:%d",ne++,u,v,min);
+            mincost+=min;
+            visited[v]=1;
+        }
+        cost[u][v]=cost[v][u]=999;
+    }
+    printf("\n Minimun cost=%d",mincost);
+    return 0;
+}
+`
+      } />
+
+      <One topic={"Floyd"} text={
+`
+#include<stdio.h>
+#include<stdlib.h>
+#define infinity 999
+int min(int a, int b)
+{
+    return (a<b)?a:b;
+}
+void floyd(int p[10][10], int n)
+{
+    int i,j,k;
+    for(k=1;k<=n;k++)
+        for(i=1;i<=n;i++)
+            for(j=1;j<=n;j++)
+                p[i][j]=min(p[i][j],p[i][k]+p[k][j]);
+}
+void main() {
+    int a[10][10],n,i,j;
+    printf("Enter the number of vertices\n");
+    scanf("%d",&n);
+    printf("Enter the cost matrix\n");
+    for(i=1;i<=n;i++)
+        for(j=1;j<=n;j++)
+            scanf("%d",&a[i][j]);
+    floyd(a,n);
+    printf("The all pair shortest path matrix is\n");
+    for(i=1;i<=n;i++) {
+        for(j=1;j<=n;j++)
+            printf("%d\t",a[i][j]);
+        printf("\n");
+    }
+}
+`
       } />
     </>
   )
