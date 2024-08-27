@@ -43,28 +43,54 @@ int main()
 
       <One topic={"Knapsack DP"} text={
         `
-#include <stdio.h>
-#define MAX 150
-knap(int n,int m); int big(int a, int b);
-w[MAX];
-int p[MAX];
-int v[MAX][MAX];
-int main() {
-    int profit, n, m;
-    //Read no of items n
-    //Capacity c
-    //weights and profits
-    //initialize first row and column elements to zero
-    profit  = knap(n,m);
-    //print profit
+#include<stdio.j>
+#define max 150
+int knapsack(int n, int m);
+int big(int a,int b);
+int w[max],p[max],x[max][max];
+int main()
+{
+    int i, j, profit,n,m;
+    printf("Enter the number of items\n");
+    scanf("%d",&n);
+    printf("Enter the knapsack capacity\n");
+    scanf("%d",&m);
+    printf("Enter weights and profits: \n");
+    for(i=1;i<=n;i++)
+    {
+        scanf("%d %d",&w[i],&p[i]);
+    }
+    for(i=0; i<=n; i++) {
+        v[i][0] = 0;
+    }
+    for(j=0; j<=m; j++) {
+        v[0][j] = 0;
+    }
+    profit = knapsack(n,m);
+    printf("The optimal profit is %d\n",profit);
 }
 
-int knap(int n, int m) {
-    for (i=1 to n)
-    for(j=1 to m)
-    if(j-w[i]<0) v[i][j] = v[i-1][j];
-    else v[i][j] = big(v[i-1][j], p[i]+v[i-1][j-w[i]]);
-    return v[n][m];
+int knapsack(int n, int m)
+{
+    int i,j;
+    for(i=1;i<=n;i++)
+    {
+        for(j=1;j<=m;j++)
+        {
+            if(w[i]>j)
+            {
+                x[i][j]=x[i-1][j];
+            }
+            else
+            {
+                x[i][j]=big(x[i-1][j],x[i-1][j-w[i]]+p[i]);
+            }
+        }
+    }
+    return x[n][m];
+}
+int big(int a, int b) {
+    return (a > b) ? a : b;
 }
 `
       } />
