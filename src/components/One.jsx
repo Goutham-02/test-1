@@ -8,8 +8,8 @@ const One = (props) => {
     }
 
   return (
-    <div>
-        <h4>{props.topic}</h4>
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+        <h4 style={{ marginRight: '10px' }}>{props.topic}</h4> 
         <button onClick={handleClick}>Copy</button>
     </div>
   )
