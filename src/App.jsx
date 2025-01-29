@@ -142,72 +142,69 @@ int main() {
 
       <One topic={"Link State Routing"} text={
         `
-#include<stdio.h>
+#include <stdio.h>
+#define INFINITY 999
 
-#define infinity 999
+void dijkstra(int n, int source, int cost[10][10], int dist[]) {
+    int visited[10] = {0};
 
-void dij(int n, int v, int cost[10][10], int dist[]) {
-    int i, u, count, w, flag[10], min;
-
-    for (i = 1; i <= n; i++) {
-        flag[i] = 0;
-        dist[i] = cost[v][i];
+    for (int i = 1; i <= n; i++) {
+        dist[i] = cost[source][i];
     }
 
-    flag[v] = 1;
-    count = 2;
+    visited[source] = 1;
 
-    while (count <= n) {
-        min = infinity;
+    for (int i = 1; i < n; i++) {
+        int min = INFINITY, u = -1;
 
-        for (w = 1; w <= n; w++) {
-            if (dist[w] < min && !flag[w]) {
-                min = dist[w];
-                u = w;
+        for (int j = 1; j <= n; j++) {
+            if (!visited[j] && dist[j] < min) {
+                min = dist[j];
+                u = j;
             }
         }
-        
-        flag[u] = 1;
-        count++;
 
-        for (w = 1; w <= n; w++) {
-            if ((dist[u] + cost[u][w] < dist[w]) && !flag[w]) {
-                dist[w] = dist[u] + cost[u][w];
+        if (u == -1) break;
+        visited[u] = 1; 
+
+        for (int v = 1; v <= n; v++) {
+            if (!visited[v] && cost[u][v] != INFINITY) {
+                if (dist[u] + cost[u][v] < dist[v]) {
+                    dist[v] = dist[u] + cost[u][v];
+                }
             }
         }
     }
 }
 
-
-void main() {
-    int n, v, i, j, cost[10][10], dist[10];
+int main() {
+    int n, source, cost[10][10], dist[10];
 
     printf("Enter the number of nodes: ");
     scanf("%d", &n);
 
-    printf("\\nEnter the cost matrix:\\n");
-    for (i = 1; i <= n; i++) {
-        for (j = 1; j <= n; j++) {
+    printf("Enter the cost matrix (use 0 for no direct connection):\\n");
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
             scanf("%d", &cost[i][j]);
-            if (cost[i][j] == 0)
-                cost[i][j] = infinity;
+            if (cost[i][j] == 0 && i != j) cost[i][j] = INFINITY;
         }
     }
 
+    printf("Enter the source node: ");
+    scanf("%d", &source);
 
-    printf("\\nEnter the source node: ");
-    scanf("%d", &v);
+    dijkstra(n, source, cost, dist);
 
-
-    dij(n, v, cost, dist);
-
-
-    printf("\\nShortest paths from node %d:\\n", v);
-    for (i = 1; i <= n; i++) {
-        if (i != v)
-            printf("%d -> %d, cost = %d\\n", v, i, dist[i]);
+    printf("Shortest paths from node %d:\\n", source);
+    for (int i = 1; i <= n; i++) {
+        if (i != source)
+            printf("%d -> %d, Cost = %d\\n", source, i, dist[i]);
     }
+
+    return 0;
 }
+
 
         `
       } />
