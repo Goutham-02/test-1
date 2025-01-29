@@ -12,7 +12,7 @@ void main() {
     char a[100];
     printf("Enter the frame(0's & 1's) :");
     scanf("%s",a);
-    printf("\n After bit stuffing\n");
+    printf("\\n After bit stuffing\\n");
     for(i=0; a[i]; i++) {
         if(a[i]=='1')
             count++;
@@ -38,13 +38,13 @@ void main() {
     char a[30], b[60];
     char startFlag[10], endFlag[10];
 
-    printf("\nEnter starting flag characters:\n");
+    printf("\\nEnter starting flag characters:\\n");
     scanf("%s", startFlag);
 
-    printf("\nEnter ending flag characters:\n");
+    printf("\\nEnter ending flag characters:\\n");
     scanf("%s", endFlag);
 
-    printf("\nEnter original string:\n");
+    printf("\\nEnter original string:\\n");
     scanf("%s", a);
     n = strlen(a);
 
@@ -73,8 +73,8 @@ void main() {
 
     b[j] = 'slash0';
 
-    printf("\nAfter character stuffing:\n");
-    printf("%s\n", b);
+    printf("\\nAfter character stuffing:\\n");
+    printf("%s\\n", b);
 }
 
 `
@@ -98,7 +98,7 @@ int main() {
     scanf("%d", &nodes);
 
     // Input: Cost matrix
-    printf("\nEnter the cost matrix (use a large value like 999 for infinity):\n");
+    printf("\\nEnter the cost matrix (use a large value like 999 for infinity):\\n");
     for (i = 0; i < nodes; i++) {
         for (j = 0; j < nodes; j++) {
             scanf("%d", &costmat[i][j]);
@@ -127,10 +127,10 @@ int main() {
 
 
     for (i = 0; i < nodes; i++) {
-        printf("\nRouting Table for Router %d:\n", i + 1);
-        printf("Destination\tNext Hop\tDistance\n");
+        printf("\\nRouting Table for Router %d:\\n", i + 1);
+        printf("Destination\\tNext Hop\\tDistance\\n");
         for (j = 0; j < nodes; j++) {
-            printf("%d\t\t%d\t\t%d\n", j + 1, rt[i].from[j] + 1, rt[i].dist[j]);
+            printf("%d\\t\\t%d\\t\\t%d\\n", j + 1, rt[i].from[j] + 1, rt[i].dist[j]);
         }
     }
 
@@ -185,7 +185,7 @@ void main() {
     printf("Enter the number of nodes: ");
     scanf("%d", &n);
 
-    printf("\nEnter the cost matrix:\n");
+    printf("\\nEnter the cost matrix:\\n");
     for (i = 1; i <= n; i++) {
         for (j = 1; j <= n; j++) {
             scanf("%d", &cost[i][j]);
@@ -195,17 +195,17 @@ void main() {
     }
 
 
-    printf("\nEnter the source node: ");
+    printf("\\nEnter the source node: ");
     scanf("%d", &v);
 
 
     dij(n, v, cost, dist);
 
 
-    printf("\nShortest paths from node %d:\n", v);
+    printf("\\nShortest paths from node %d:\\n", v);
     for (i = 1; i <= n; i++) {
         if (i != v)
-            printf("%d -> %d, cost = %d\n", v, i, dist[i]);
+            printf("%d -> %d, cost = %d\\n", v, i, dist[i]);
     }
 }
 
@@ -227,17 +227,17 @@ int main() {
     ACK = YES;
 
     for (; i <= TOT_FRAMES;) {
-        printf("\nSENDER: Frame %d sent, waiting for ACK...\n", i);
+        printf("\\nSENDER: Frame %d sent, waiting for ACK...\\n", i);
 
         wait_time = rand() % 4 + 1;
 
         if (wait_time == TIMEOUT) {
-            printf("SENDER: ACK not received for frame %d => TIMEOUT! Resending frame...\n", i);
+            printf("SENDER: ACK not received for frame %d => TIMEOUT! Resending frame...\\n", i);
         } else {
             if (ACK == YES && i != 1) {
-                printf("\nSENDER: ACK for frame %d received\n", i - 1);
+                printf("\\nSENDER: ACK for frame %d received\\n", i - 1);
             }
-            printf("\nRECEIVER: Frame %d received, ACK sent\n", i);
+            printf("\\nRECEIVER: Frame %d received, ACK sent\\n", i);
             printf("-------------------------------");
             ACK = YES;
             i++;
@@ -275,16 +275,16 @@ int main() {
 
         if (incoming <= (bucket_size - store)) {
             store += incoming;
-            printf("Bucket buffer size: %d out of %d\n", store, bucket_size);
+            printf("Bucket buffer size: %d out of %d\\n", store, bucket_size);
         } else {
-            printf("Dropped %d packets\n", incoming - (bucket_size - store));
+            printf("Dropped %d packets\\n", incoming - (bucket_size - store));
             store = bucket_size;
-            printf("Bucket buffer size: %d out of %d\n", store, bucket_size);
+            printf("Bucket buffer size: %d out of %d\\n", store, bucket_size);
         }
 
         store -= outgoing;
         if (store < 0) store = 0;
-        printf("After outgoing, %d packets left out of %d in buffer\n", store, bucket_size);
+        printf("After outgoing, %d packets left out of %d in buffer\\n", store, bucket_size);
 
         num_inputs--;
     }
@@ -312,22 +312,22 @@ int main() {
 		scanf("%d", &frames[i]);
 	}
 
-	printf("\nSending frames in the following manner:\n");
+	printf("\\nSending frames in the following manner:\\n");
 	for (int i = 1; i <= num_frames; i++) {
 
-		printf("%d\t", frames[i]);
+		printf("%d\\t", frames[i]);
 
 		if (i % window_size == 0 || i == num_frames) {
-			printf("\nSENDER: waiting for ACK\n");
-			printf("RECEIVER: Frames Received, ACK SENT\n");
-			printf("SENDER: ACK received, sending next frames\n\n");
+			printf("\\nSENDER: waiting for ACK\\n");
+			printf("RECEIVER: Frames Received, ACK SENT\\n");
+			printf("SENDER: ACK received, sending next frames\\n\\n");
 		}
 	}
 
 	if (num_frames % window_size != 0) {
-		printf("\nSENDER: waiting for ACK...\n");
-		printf("RECEIVER: Frames Received, ACK SENT\n");
-		printf("SENDER: ACK received\n");
+		printf("\\nSENDER: waiting for ACK...\\n");
+		printf("RECEIVER: Frames Received, ACK SENT\\n");
+		printf("SENDER: ACK received\\n");
 	}
 
 	return 0;
@@ -363,12 +363,12 @@ void chat(int connfd) {
         bzero(buff, sizeof(buff));
         printf("To client: ");
         n = 0;
-        while ((buff[n++] = getchar()) != '\n');
+        while ((buff[n++] = getchar()) != '\\n');
 
         write(connfd, buff, sizeof(buff));
 
         if (strncmp(buff, "exit", 4) == 0) {
-            printf("Server Exit...\n");
+            printf("Server Exit...\\n");
             break;
         }
     }
@@ -383,7 +383,7 @@ int main() {
         perror("Socket creation failed");
         exit(0);
     }
-    printf("Socket created successfully.\n");
+    printf("Socket created successfully.\\n");
 
     bzero(&servaddr, sizeof(servaddr));
 
@@ -395,13 +395,13 @@ int main() {
         perror("Socket binding failed");
         exit(0);
     }
-    printf("Socket successfully binded.\n");
+    printf("Socket successfully binded.\\n");
 
     if (listen(sockfd, 5) != 0) {
         perror("Listen failed");
         exit(0);
     }
-    printf("Server listening...\n");
+    printf("Server listening...\\n");
 
     socklen_t len = sizeof(cli);
     connfd = accept(sockfd, (SA*)&cli, &len);
@@ -409,7 +409,7 @@ int main() {
         perror("Server accept failed");
         exit(0);
     }
-    printf("Server connected to client.\n");
+    printf("Server connected to client.\\n");
 
     chat(connfd);
 
@@ -437,7 +437,7 @@ void chat(int sockfd) {
         bzero(buff, sizeof(buff));
         printf("Enter message: ");
         n = 0;
-        while ((buff[n++] = getchar()) != '\n');
+        while ((buff[n++] = getchar()) != '\\n');
 
         write(sockfd, buff, sizeof(buff));
 
@@ -446,7 +446,7 @@ void chat(int sockfd) {
         printf("From server: %s", buff);
 
         if (strncmp(buff, "exit", 4) == 0) {
-            printf("Client Exit...\n");
+            printf("Client Exit...\\n");
             break;
         }
     }
@@ -461,7 +461,7 @@ int main() {
         perror("Socket creation failed");
         exit(0);
     }
-    printf("Socket created successfully.\n");
+    printf("Socket created successfully.\\n");
 
     bzero(&servaddr, sizeof(servaddr));
 
@@ -473,7 +473,7 @@ int main() {
         perror("Connection with server failed");
         exit(0);
     }
-    printf("Connected to server.\n");
+    printf("Connected to server.\\n");
     
     chat(sockfd);
 
@@ -507,7 +507,7 @@ int main() {
 	printf("Enter the length of Data Frame: ");
 	scanf("%d", &len);
 
-	printf("Enter the Message:\n");
+	printf("Enter the Message:\\n");
 	for (i = 0; i < len; i++) {
 		scanf("%d", &a[i]);
 	}
@@ -526,12 +526,12 @@ int main() {
 		b[i] ^= a[i];
 	}
 
-	printf("\nData to be transmitted:\n");
+	printf("\\nData to be transmitted:\\n");
 	for (i = 0; i < len; i++) {
 		printf("%d ", b[i]);
 	}
 
-	printf("\nEnter the Received Data:\n");
+	printf("\\nEnter the Received Data:\\n");
 	for (i = 0; i < len; i++) {
 		scanf("%d", &a[i]);
 	}
@@ -540,12 +540,12 @@ int main() {
 
 	for (i = 0; i < len; i++) {
 		if (a[i] != 0) {
-			printf("\nERROR in Received Data\n");
+			printf("\\nERROR in Received Data\\n");
 			return 0;
 		}
 	}
 
-	printf("\nData Received is ERROR FREE\n");
+	printf("\\nData Received is ERROR FREE\\n");
 	return 0;
 }
 `
@@ -594,9 +594,9 @@ public:
             }
         }
 
-        cout << "Vertex Distance from Source\n";
+        cout << "Vertex Distance from Source\\n";
         for (int i = 0; i < V; ++i) {
-            cout << i << " \t\t " << dist[i] << endl;
+            cout << i << " \\t\\t " << dist[i] << endl;
         }
     }
 };
@@ -663,23 +663,23 @@ int main() {
 	}
 
 	char input_str[20];
-	printf("\nEnter the input string: ");
+	printf("\\nEnter the input string: ");
 	scanf("%s", input_str);
-	printf("\nThe entered string is: %s\n", input_str);
+	printf("\\nThe entered string is: %s\\n", input_str);
 
 	unsigned int encrypted[20] = {0};
-	printf("\nThe encrypted string is:\n");
+	printf("\\nThe encrypted string is:\\n");
 	for (int i = 0; i < strlen(input_str); i++) {
 		encrypted[i] = mod_exp(input_str[i], e, n);
-		printf("%c = %3d\n", input_str[i], encrypted[i]);
+		printf("%c = %3d\\n", input_str[i], encrypted[i]);
 	}
 
-	printf("\nDecrypted string is: ");
+	printf("\\nDecrypted string is: ");
 	for (int i = 0; i < strlen(input_str); i++) {
 		char decrypted_char = (char)mod_exp(encrypted[i], d, n);
 		printf("%c", decrypted_char);
 	}
-	printf("\n");
+	printf("\\n");
 
 	return 0;
 }
