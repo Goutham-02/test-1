@@ -48,7 +48,7 @@ void main() {
     scanf("%s", a);
     n = strlen(a);
 
-    for (i = 0; startFlag[i] != '\0'; i++) {
+    for (i = 0; startFlag[i] != 'slash0'; i++) {
         b[j] = startFlag[i];
         j++;
     }
@@ -66,12 +66,12 @@ void main() {
         j++;
     }
 
-    for (i = 0; endFlag[i] != '\0'; i++) {
+    for (i = 0; endFlag[i] != 'slash0'; i++) {
         b[j] = endFlag[i];
         j++;
     }
 
-    b[j] = '\0';
+    b[j] = 'slash0';
 
     printf("\nAfter character stuffing:\n");
     printf("%s\n", b);
