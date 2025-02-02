@@ -46,14 +46,14 @@ ylim([-5 5])
 
 vCap=conv(r,p,'full');
 figure; plot(real(vCap),'r');
-title('After matched filtering $\hat{v}$(n)','Interpreter','Latex');
+title('After matched filtering $\\hat{v}$(n)','Interpreter','Latex');
 xlim([0 150])
 ylim([-20 20])
 
 uCap = vCap(2*filtDelay+1:L:end-(2*filtDelay))/L;
 
 figure; stem(real(uCap)); hold on;
-title('After symbol rate sampler $\hat{u}$(n)',...
+title('After symbol rate sampler $\\hat{u}$(n)',...
 'Interpreter','Latex');
 dCap = demodulate(MOD_TYPE,M,uCap); 
 xlim([0 20])
@@ -67,60 +67,55 @@ ylim([-15 15])
       } />
 
       <One topic={"7A - FSEL"} text={
-        `
+`
 clc;clear all;close all;
-fs = 1e6;                   % Sample rate (1 MHz)
-numSamples = 10000;          % Number of samples
-numPaths = 5;                % Number of multipath components
-maxDelay = 3e-6;             % Maximum delay spread (3 microseconds)
-dopplerShift = 100;          % Maximum Doppler shift (100 Hz)
-% Generate an impulse signal (delta function)
-impulseSignal = [1; zeros(numSamples-1, 1)];  % An impulse signal
-% Create a frequency-selective Rayleigh fading channel
+fs = 1e6;                   
+numSamples = 10000;          
+numPaths = 5;               
+maxDelay = 3e-6;             
+dopplerShift = 100;         
+impulseSignal = [1; zeros(numSamples-1, 1)];  
 rayleighChan = comm.RayleighChannel( ...
     'SampleRate', fs, ...
-    'PathDelays', linspace(0, maxDelay, numPaths), ...  % Multipath delays
-    'AveragePathGains', [-2 -3 -6 -8 -10], ...          % Path gains (dB)
-    'MaximumDopplerShift', dopplerShift, ...            % Doppler shift
+    'PathDelays', linspace(0, maxDelay, numPaths), ...  
+    'AveragePathGains', [-2 -3 -6 -8 -10], ...         
+    'MaximumDopplerShift', dopplerShift, ...          
     'NormalizePathGains', true);
-% Pass the impulse signal through the frequency-selective fading channel
 rxImpulseSignal = rayleighChan(impulseSignal);
-% Plot the impulse response
-timeAxis = (0:numSamples-1)/fs;  % Time axis for plotting
-figure;
-stem(timeAxis(1:100), 20*log10(abs(rxImpulseSignal(1:100))));  % Plot first 100 samples in dB
+
+timeAxis = (0:numSamples-1)/fs; 
+stem(timeAxis(1:100), 20*log10(abs(rxImpulseSignal(1:100))));  
 title('Impulse Response of Frequency-Selective Rayleigh Fading Channel');
 xlabel('Time (s)');ylabel('Gain (dB)');grid on;
-% Frequency Response
-NFFT = 1024;  % FFT size for frequency response
-freqResponse = fft(rxImpulseSignal, NFFT);  % FFT of the received impulse signal
-freqAxis = linspace(-fs/2, fs/2, NFFT);  % Frequency axis
-% Plot the frequency response
+
+NFFT = 1024;  
+freqResponse = fft(rxImpulseSignal, NFFT);  
+freqAxis = linspace(-fs/2, fs/2, NFFT);  
+
 figure;
-plot(freqAxis/1e6, 20*log10(abs(fftshift(freqResponse))));  % Shift zero frequency to center
+plot(freqAxis/1e6, 20*log10(abs(fftshift(freqResponse))));  
 title('Frequency Response of Frequency-Selective Rayleigh Fading Channel');
 xlabel('Frequency (MHz)');ylabel('Magnitude (dB)');grid on;
 `
       } />
 
       <One topic={"7B - Non Selective"} text={
-        `
+`
 clc;clear all;close all
-fs = 1e6;                   % Sample rate (1 MHz)
-numSamples = 10000;         % Number of samples
-maxDopplerShift = 100;      % Maximum Doppler shift (100 Hz)
+fs = 1e6;                   
+numSamples = 10000;         
+maxDopplerShift = 100;      
 
 
-% Generate random data signal (complex baseband)
-txSignal = (randn(numSamples, 1) + 1j*randn(numSamples, 1));  % Complex Gaussian signal
-% Create flat Rayleigh fading channel
+
+txSignal = (randn(numSamples, 1) + 1j*randn(numSamples, 1)); 
 rayleighChan = comm.RayleighChannel( ...
     'SampleRate', fs, ...
-    'MaximumDopplerShift', maxDopplerShift, ... % Doppler shift
-    'NormalizePathGains', true);                % Normalize path gains
-% Pass the signal through the flat Rayleigh fading channel
+    'MaximumDopplerShift', maxDopplerShift, ... 
+    'NormalizePathGains', true);            
+
 rxSignal = rayleighChan(txSignal);
-% Plot the transmitted and received signals (first 100 samples)
+
 figure;subplot(2, 1, 1);
 plot(real(txSignal(1:100)), 'b-o');hold on;
 plot(imag(txSignal(1:100)), 'r-x');
@@ -133,14 +128,14 @@ plot(imag(rxSignal(1:100)), 'r-x');
 title('Received Signal through Flat Rayleigh Fading Channel (First 100 Samples)');
 xlabel('Sample Index');ylabel('Amplitude');
 legend('Real Part', 'Imaginary Part');grid on;
-% Compute and plot the power spectral density (PSD) of the transmitted and received signals
+
 figure;
 pwelch(txSignal, [], [], [], fs, 'centered');hold on;
 pwelch(rxSignal, [], [], [], fs, 'centered');
 title('Power Spectral Density (PSD) of Transmitted and Received Signals');
 xlabel('Frequency (Hz)');ylabel('Power/Frequency (dB/Hz)');
 legend('Transmitted Signal', 'Received Signal');grid on;
-        `
+`
       } />
 
       <One topic={"DSSS"} text={
@@ -313,12 +308,12 @@ carrier_signal = cos(t_carrier);
 
 figure(1);
 subplot(4,1,1); plot(input_signal); axis([-100 2400 -1.5 1.5]);
-title('\bf\it Original Bit Sequence');
+title('\\bf\\it Original Bit Sequence');
 
 
 bpsk_mod_signal = input_signal .* carrier_signal;
 subplot(4,1,2); plot(bpsk_mod_signal); axis([-100 2400 -1.5 1.5]);
-title('\bf\it BPSK Modulated Signal');
+title('\\bf\\it BPSK Modulated Signal');
 
 
 carriers = cell(1, num_carriers);
@@ -335,23 +330,23 @@ for i = 1:num_bits
     spread_signal = [spread_signal carriers{carrier_idx}];
 end
 subplot(4,1,3); plot(spread_signal); axis([-100 2400 -1.5 1.5]);
-title('\bf\it Spread Signal with 6 frequencies');
+title('\\bf\\it Spread Signal with 6 frequencies');
 
 
 freq_hopped_sig = bpsk_mod_signal .* spread_signal;
 subplot(4,1,4); plot(freq_hopped_sig); axis([-100 2400 -1.5 1.5]);
-title('\bf\it Frequency Hopped Spread Spectrum Signal');
+title('\\bf\\it Frequency Hopped Spread Spectrum Signal');
 
 
 bpsk_demodulated = freq_hopped_sig ./ spread_signal;
 figure(2);
 subplot(2,1,1); plot(bpsk_demodulated); axis([-100 2400 -1.5 1.5]);
-title('\bf Demodulated BPSK Signal from Wide Spread');
+title('\\bf Demodulated BPSK Signal from Wide Spread');
 
 
 original_BPSK_signal = bpsk_demodulated ./ carrier_signal;
 subplot(2,1,2); plot(original_BPSK_signal); axis([-100 2400 -1.5 1.5]);
-title('\bf Transmitted Original Bit Sequence');
+title('\\bf Transmitted Original Bit Sequence');
 `
       } />
 
@@ -404,7 +399,7 @@ rx_signal = tx_signal .* exp(1j * true_phase) + noise; % Received signal
 
 % 1. Maximum Likelihood Carrier Phase Estimation
 estimated_phase_ml = angle(sum(conj(tx_signal) .* rx_signal)); % ML estimation
-%fprintf('True Phase: %.2f rad, Estimated Phase (ML): %.2f rad\n', true_phase, estimated_phase_ml);
+%fprintf('True Phase: %.2f rad, Estimated Phase (ML): %.2f rad\\n', true_phase, estimated_phase_ml);
 
 % 2. Phase-Locked Loop (PLL) Implementation
 phase_error_pll = zeros(N, 1); % Phase error for PLL
