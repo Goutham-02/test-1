@@ -352,71 +352,40 @@ title('\\bf Transmitted Original Bit Sequence');
 
       <One topic={"Experiment 8"} text={
 `
-
-Conversation opened. 3 messages. 1 message unread.
-
-Skip to content
-Using RV College of Engineering, Bangalore, India. Mail with screen readers
-
-1 of 3,267
-Fwd: Exp 6 and 8 Lab codes
-Inbox
-
-SADHALE APOORV SACHIN
-AttachmentsFri, Jan 10, 11:50 AM
-For Lab of CS Exp 6 and 8 ---------- Forwarded message --------- From: Nethravathi K.A. <nethravathika@rvce.edu.in> Date: Fri, 10 Jan, 2025, 11:48 am Subject: E
-
-SHREYAS ARADHYA K
-AttachmentsMon, Jan 13, 11:40 AM
----------- Forwarded message --------- From: SADHALE APOORV SACHIN <sapoorvsachin.ec22@rvce.edu.in> Date: Fri, Jan 10, 2025 at 11:50 AM Subject: Fwd: Exp 6 and
-
-SHASHANK DHARAMSHETTY
-Attachments
-3:44 PM (2 minutes ago)
-to me
-
-
-
- 2 Attachments
-  •  Scanned by Gmail
-% MATLAB Code for Carrier Phase Estimation 
-% Parameters
 clear all; clc;
-N = 1000;          % Number of symbols
-SNR_dB = 10;       % Signal-to-Noise Ratio in dB
-M = 4;             % QPSK modulation order
-loop_bandwidth = 0.01; % PLL loop bandwidth
-true_phase = pi / 3; % True phase of the carrier
+N = 1000;          
+SNR_dB = 10;     
+M = 4;           
+loop_bandwidth = 0.01; 
+true_phase = pi / 3;
 
-% Generate QPSK symbols
-tx_symbols = exp(1j * (2 * pi * (0:M-1) / M)); % QPSK constellation points
-tx_data = randi([0 M-1], N, 1);                % Random data
-tx_signal = tx_symbols(tx_data + 1);           % Modulated signal
 
-% Add noise to the transmitted signal
+tx_symbols = exp(1j * (2 * pi * (0:M-1) / M)); 
+tx_data = randi([0 M-1], N, 1);               
+tx_signal = tx_symbols(tx_data + 1);          
+
 noise = (1/sqrt(2*10^(SNR_dB/10))) * (randn(N, 1) + 1j * randn(N, 1));
-rx_signal = tx_signal .* exp(1j * true_phase) + noise; % Received signal
+rx_signal = tx_signal .* exp(1j * true_phase) + noise; 
 
-% 1. Maximum Likelihood Carrier Phase Estimation
-estimated_phase_ml = angle(sum(conj(tx_signal) .* rx_signal)); % ML estimation
-%fprintf('True Phase: %.2f rad, Estimated Phase (ML): %.2f rad\\n', true_phase, estimated_phase_ml);
 
-% 2. Phase-Locked Loop (PLL) Implementation
-phase_error_pll = zeros(N, 1); % Phase error for PLL
-estimated_phase_pll = zeros(N, 1); % Estimated phase for PLL
-current_phase_estimate_pll = 0; % Initial phase estimate for PLL
+estimated_phase_ml = angle(sum(conj(tx_signal) .* rx_signal)); 
+
+
+phase_error_pll = zeros(N, 1);
+estimated_phase_pll = zeros(N, 1);
+current_phase_estimate_pll = 0;
 
 for n = 1:N
-    % Phase detection
+ 
     phase_error_pll(n) = angle(rx_signal(n) * exp(-1j * current_phase_estimate_pll)); 
     current_phase_estimate_pll = current_phase_estimate_pll + loop_bandwidth * phase_error_pll(n);
     estimated_phase_pll(n) = current_phase_estimate_pll;
 end
 
-% 3. Apply Phase Correction to Received Signal
+
 corrected_rx_signal = rx_signal .* exp(-1j * estimated_phase_pll); % Corrected received signal
 
-% Plot Original and Corrected Constellation Diagrams
+
 figure;
 subplot(2, 1, 1);
 scatter(real(rx_signal), imag(rx_signal), 'filled');
@@ -434,8 +403,8 @@ ylabel('Quadrature');
 axis equal;
 grid on;
 
-% 4. Effect of Additive Noise on Phase Estimate
-SNR_dB_range = 0:2:20; % SNR range for variance calculation
+
+SNR_dB_range = 0:2:20;
 phase_error_variance = zeros(length(SNR_dB_range), 1);
 
 for idx = 1:length(SNR_dB_range)
@@ -443,51 +412,51 @@ for idx = 1:length(SNR_dB_range)
     noise_variance = 1/(2*10^(SNR_dB/10));
     noise = sqrt(noise_variance) * (randn(N, 1) + 1j * randn(N, 1));
     
-    % Received signal with noise
-    rx_signal = exp(1j * true_phase) + noise; % Use a single reference for variance calculation
     
-    % ML phase estimation
+    rx_signal = exp(1j * true_phase) + noise;
+    
+  
     estimated_phase = angle(sum(rx_signal));
     
-    % Phase error variance
+    
     phase_error_variance(idx) = var(angle(rx_signal) - true_phase);
 end
 
-% Plot the phase error variance as a function of SNR
+
 figure;
 plot(SNR_dB_range, phase_error_variance);
 xlabel('SNR (dB)');
 ylabel('Phase Error Variance');
 title('Effect of Noise on Phase Estimation');
 
-% 5. Decision-Directed and Non-Decision-Directed Loops
-phase_error_dd = zeros(N, 1); % Decision-directed phase error
-phase_error_ndd = zeros(N, 1); % Non-decision-directed phase error
+
+phase_error_dd = zeros(N, 1);
+phase_error_ndd = zeros(N, 1);
 estimated_phase_dd = zeros(N, 1);
 estimated_phase_ndd = zeros(N, 1);
 
-% Initialization
+
 current_phase_estimate_dd = 0;
 current_phase_estimate_ndd = 0;
 
 for n = 1:N
-    % Simulate received signal with phase offset and noise
+   
     noise = (1/sqrt(2*10^(SNR_dB))) * (randn + 1j * randn);
     rx_signal = tx_signal(n) * exp(1j * true_phase) + noise;
 
-    % Decision-Directed (DD) Loop
-    detected_symbol = exp(1j * round(angle(rx_signal) * M / (2 * pi)) * 2 * pi / M); % Symbol detection
+    
+    detected_symbol = exp(1j * round(angle(rx_signal) * M / (2 * pi)) * 2 * pi / M); 
     phase_error_dd(n) = angle(detected_symbol * exp(-1j * current_phase_estimate_dd)); 
     current_phase_estimate_dd = current_phase_estimate_dd + loop_bandwidth * phase_error_dd(n);
     estimated_phase_dd(n) = current_phase_estimate_dd;
 
-    % Non-Decision-Directed (NDD) Loop
+   
     phase_error_ndd(n) = angle(rx_signal * exp(-1j * current_phase_estimate_ndd));
     current_phase_estimate_ndd = current_phase_estimate_ndd + loop_bandwidth * phase_error_ndd(n);
     estimated_phase_ndd(n) = current_phase_estimate_ndd;
 end
 
-% Plot the results for DD and NDD loops
+
 figure;
 subplot(2, 1, 1);
 plot(1:N, estimated_phase_dd);
@@ -500,51 +469,45 @@ plot(1:N, estimated_phase_ndd);
 title('Non-Decision-Directed Phase Estimate');
 xlabel('Samples');
 ylabel('Estimated Phase (radians)');
-Expt8_car_phase_est[1].m
-Displaying Expt6[1].m.
 `
       } />
 
       <One topic={"Experiment 6"} text={
 `
-L        = 4;         % Oversampling factor
-rollOff  = 0.5;       % Pulse shaping roll-off factor
+L        = 4;         
+rollOff  = 0.5;      
 rcDelay  = 10;  
-% Filter:
+
 htx = rcosdesign(rollOff, 6, 4);
-% Note half of the target delay is used, because when combined
-% to the matched filter, the total delay will be achieved.
+
 hrx  = conj(fliplr(htx));
 p = conv(htx,hrx);
-M = 2; % PAM Order
-
-% Arbitrary binary sequence alternating between 0 and 1
+M = 2;
 data = zeros(1, 2*rcDelay);
 data(1:2:end) = 1;
 
-% PAM-modulated symbols:
+
 txSym = real(pammod(data, M));
 
-% Upsampling
+
 txUpSequence = upsample(txSym, L);
 
-% Pulse Shaping
+
 txSequence = filter(htx, 1, txUpSequence);
 
-%Delay in channel  random channel propagation delay in units of sampling intervals (not symbol intervals)
-timeOffset = 1; % Delay (in samples) added
-% Delayed sequence
+
+timeOffset = 1; 
 rxDelayed = [zeros(1, timeOffset), txSequence(1:end-timeOffset)];
 
-% Received sequence with Delayed
-mfOutput = filter(hrx, 1, rxDelayed); % Matched filter output
+
+mfOutput = filter(hrx, 1, rxDelayed);
 
 rxSym = downsample(mfOutput, L);
-% Generate a vector that shows the selected samples
+
 selectedSamples = upsample(rxSym, L);
 selectedSamples(selectedSamples == 0) = NaN;
 
-% scatter plot
+
 figure
 plot(complex(rxSym(rcDelay+1:end)), 'o')
 grid on
@@ -559,7 +522,7 @@ title('Symbol Sequence with delay')
 xlabel('Symbol Index')
 ylabel('Amplitude')
 
-%Symbol timing recovery
+
 rxSym = downsample(mfOutput, L, timeOffset);
 
 selectedSamples = upsample(rxSym, L);
