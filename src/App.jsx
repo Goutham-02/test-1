@@ -6,92 +6,58 @@ function App() {
     <>
       <One topic={"Experiment 3"} text={
         `
-clear all;
-clc;
-N = 10^5; 
-MOD_TYPE = 'PAM'; 
-M = 4; 
-d = ceil(M.*rand(1,N)); 
-u = modulate(MOD_TYPE,M,d);
-figure; stem(real(u)); 
-title('PAM modulated symbols u(k)');
-xlim([0 20])
-ylim([-5 5])
-
-L=4;
-v=[u;zeros(L-1,length(u))];
-
-v=v(:).';e
-figure;stem(real(v)); title('Oversampled symbols v(n)');
-xlim([0 150])
-ylim([-5 5])
-
-beta = 0.3;
-Nsym=8;
-L=4;
-[p,t,filtDelay] = srrcFunction(beta,L,Nsym);
-s=conv(v,p,'full');
-figure; plot(real(s),'r'); title('Pulse shaped symbols s(n)');
-xlim([0 150])
-ylim([-5 5])
-
-EbN0dB = 1000; 
-snr = 10*log10(log2(M))+EbN0dB;
-
-r = add_awgn_noise(s,snr,L); 
-
-figure; plot(real(r),'r');title('Received signal r(n)');
-xlim([0 150])
-ylim([-5 5])
-
-vCap=conv(r,p,'full');
-figure; plot(real(vCap),'r');
-title('After matched filtering $\\hat{v}$(n)','Interpreter','Latex');
-xlim([0 150])
-ylim([-20 20])
-
-uCap = vCap(2*filtDelay+1:L:end-(2*filtDelay))/L;
-
-figure; stem(real(uCap)); hold on;
-title('After symbol rate sampler $\\hat{u}$(n)',...
-'Interpreter','Latex');
-dCap = demodulate(MOD_TYPE,M,uCap); 
-xlim([0 20])
-ylim([-5 5])
-
-figure; 
-plotEyeDiagram(vCap,L,3*L,2*filtDelay,100);
-xlim([0 3])
-ylim([-15 15])
+clc; clear; close all;
+N = 1e5; M = 4; L = 4; beta = 1; Nsym = 8; EbN0dB = 100;
+snr = 10*log10(log2(M)) + EbN0dB;
+d = randi([0 M-1], 1, N);
+u = pammod(d, M);
+s = filter(rcosdesign(beta, Nsym, L), 1, upsample(u, L));
+r = awgn(s, snr, 'measured');
+vCap = filter(rcosdesign(beta, Nsym, L), 1, r);
+filtDelay = Nsym * L / 2;
+dCap = vCap(2*filtDelay+1:L:end-(2*filtDelay))/L;
+upsampled_u = upsample(u, L);
+figure;
+subplot(3,2,1); stem(u(1:20)); title('PAM Modulated Symbols');
+subplot(3,2,2); stem(upsampled_u(1:150)); title('Oversampled Symbols');
+subplot(3,2,3); plot(s(1:150), 'r'); title('Pulse Shaped Symbols');
+subplot(3,2,4); plot(r(1:150), 'r'); title('Received Signal');
+subplot(3,2,5); plot(vCap(1:150), 'r'); title('Matched Filter Output');
+subplot(3,2,6); stem(dCap(1:20)); title('Symbol Rate Sampled Output');
+figure;
+plotEyeDiagram(vCap, L, 3*L,2*filtDelay,100)
 `
       } />
 
       <One topic={"7A - FSEL"} text={
 `
 clc;clear all;close all;
-fs = 1e6;                   
-numSamples = 10000;          
-numPaths = 5;               
+fs = 1e6;
+numSamples = 10000;         
+numPaths = 5;             
 maxDelay = 3e-6;             
 dopplerShift = 100;         
+% Generate an impulse signal (delta function)
 impulseSignal = [1; zeros(numSamples-1, 1)];  
+% Create a frequency-selective Rayleigh fading channel
 rayleighChan = comm.RayleighChannel( ...
     'SampleRate', fs, ...
     'PathDelays', linspace(0, maxDelay, numPaths), ...  
-    'AveragePathGains', [-2 -3 -6 -8 -10], ...         
-    'MaximumDopplerShift', dopplerShift, ...          
+    'AveragePathGains', [-2 -3 -6 -8 -10], ...          
+    'MaximumDopplerShift', dopplerShift, ...            
     'NormalizePathGains', true);
+% Pass the impulse signal through the frequency-selective fading channel
 rxImpulseSignal = rayleighChan(impulseSignal);
-
-timeAxis = (0:numSamples-1)/fs; 
+% Plot the impulse response
+timeAxis = (0:numSamples-1)/fs;  
+figure;
 stem(timeAxis(1:100), 20*log10(abs(rxImpulseSignal(1:100))));  
 title('Impulse Response of Frequency-Selective Rayleigh Fading Channel');
 xlabel('Time (s)');ylabel('Gain (dB)');grid on;
-
-NFFT = 1024;  
+% Frequency Response
+NFFT = 1024;  % FFT size for frequency response
 freqResponse = fft(rxImpulseSignal, NFFT);  
 freqAxis = linspace(-fs/2, fs/2, NFFT);  
-
 figure;
 plot(freqAxis/1e6, 20*log10(abs(fftshift(freqResponse))));  
 title('Frequency Response of Frequency-Selective Rayleigh Fading Channel');
@@ -105,9 +71,6 @@ clc;clear all;close all
 fs = 1e6;                   
 numSamples = 10000;         
 maxDopplerShift = 100;      
-
-
-
 txSignal = (randn(numSamples, 1) + 1j*randn(numSamples, 1)); 
 rayleighChan = comm.RayleighChannel( ...
     'SampleRate', fs, ...
@@ -140,331 +103,161 @@ legend('Transmitted Signal', 'Received Signal');grid on;
 
       <One topic={"DSSS"} text={
         `
-clear all;
+clc;close all;clear all;
+Fs = 1000; fc = 100; fp = 4; bit_t = 0.1;
+m = [0 0 1 1 1 1 0 0]*2-1;
+message = reshape(repmat(m, fp, 1), 1, []);
 
-Fs = 1000;
-fc = 100;
-fp = 4;
-bit_t = 0.1;
-
-m = [0 0 1 1 1 1 0 0];
-for bit = 1:length(m)
-if(m(bit)==0)
-m(bit) = -1;
-end
-end
-message = repmat(m,fp,1);
-message = reshape(message,1,[]);
-
-pn_code = randi([0,1],1,length(m)*fp);
-for bit = 1:length(pn_code)
-if(pn_code(bit)==0)
-pn_code(bit) = -1;
-end
-end
-DSSS = message.*pn_code;
+pn_code = randi([0,1], 1, length(message))*2-1;
+DSSS = message .* pn_code;
 
 t = 0:1/Fs:(bit_t-1/Fs);
-s0 = -1*cos(2*pi*fc*t);
-s1 = cos(2*pi*fc*t);
-carrier = [];
-BPSK = [];
-for i = 1:length(DSSS)
-if (DSSS(i) == 1)
-BPSK = [BPSK s1];
-elseif (DSSS(i) == -1)
-BPSK = [BPSK s0];
-end
-carrier = [carrier s1];
+carrier = cos(2*pi*fc*t);
+BPSK = reshape(kron(DSSS, carrier), 1, []);
 
-end
-rx =[];
-for i = 1:length(pn_code)
-if(pn_code(i)==1)
-rx = [rx BPSK((((i-1)*length(t))+1):i*length(t))];
-else
-rx = [rx (-1)*BPSK((((i-1)*length(t))+1):i*length(t))];
-end
-end
-demod = rx.*carrier;
-result = [];
-for i = 1:length(m)
-x = length(t)*fp;
-cx = sum(carrier(((i-1)*x)+1:i*x).*demod(((i-1)*x)+1:i*x));
-if(cx>0)
-result = [result 1];
-else
-result = [result -1];
-end
-end
-pn_codeWrong = randi([0,1],1,length(m)*fp);
-resultWrong = [];
-rx2 =[];
-for i = 1:length(pn_code)
-if(pn_codeWrong(i)==1)
-rx2 = [rx2 BPSK((((i-1)*length(t))+1):i*length(t))];
-else
-rx2 = [rx2 (-1)*BPSK((((i-1)*length(t))+1):i*length(t))];
-end
-end
-demod2 = rx2.*carrier;
-for i = 1:length(m)
-x = length(t)*fp;
-cx = sum(carrier(((i-1)*x)+1:i*x).*demod2(((i-1)*x)+1:i*x));
-if(cx>0)
-resultWrong = [resultWrong 1];
-else
-resultWrong = [resultWrong -1];
+rx = BPSK .* reshape(kron(pn_code, ones(1, length(t))), 1, []);
+demod = rx .* reshape(repmat(carrier, 1, length(DSSS)), 1, []);
 
-end
-end
-message1 = repmat(result,fp,1);
-message1 = reshape(message1,1,[]);
-message2 = repmat(resultWrong,fp,1);
-message2 = reshape(message2,1,[]);
-
-pn_size = length(pn_code);
-tpn = linspace(0,length(m)*bit_t-bit_t/fp,pn_size);
+pn_size = length(pn_code); tpn = linspace(0, length(m)*bit_t-bit_t/fp, pn_size);
 tm = 0:bit_t/fp:length(m)*bit_t-bit_t/fp;
-figure
-subplot(311)
-stairs(tm,message,'linewidth',2)
-title('Message bit sequence')
-axis([0 length(m)*bit_t -1 1]);
-subplot(312)
-stairs(tpn,pn_code,'linewidth',2)
-title('Pseudo-random code');
-axis([0 length(m)*bit_t -1 1]);
-subplot(313)
-stairs(tpn,DSSS,'linewidth',2)
-title('Modulated signal');
-axis([0 length(m)*bit_t -1 1]);
-figure
-subplot(311)
-stairs(tm,message,'linewidth',2)
-title('Message bit sequence')
-axis([0 length(m)*bit_t -1 1]);
-subplot(312)
-stairs(tm,message1,'linewidth',2)
-title('Received message using true pseudo-random code')
-axis([0 length(m)*bit_t -1 1]);
-subplot(313)
-stairs(tm,message2,'linewidth',2)
-title('Received message using wrong pseudo-random code')
-axis([0 length(m)*bit_t -1 1]);
 
-f = linspace(-Fs/2,Fs/2,1024);
-figure
-subplot(311)
-plot(f,abs(fftshift(fft(message,1024))),'linewidth',2);
-
-title('Message spectrum')
-subplot(312)
-plot(f,abs(fftshift(fft(pn_code,1024))),'linewidth',2);
-title('Pseudo-random code spectrum');
-subplot(313)
-plot(f,abs(fftshift(fft(DSSS,1024))),'linewidth',2);
-title('Modulated signal spectrum');
 figure;
-subplot(311)
-plot(f,abs(fftshift(fft(BPSK,1024))),'linewidth',2);
-title('Transmitted signal spectrum');
-subplot(312)
-plot(f,abs(fftshift(fft(rx,1024))),'linewidth',2);
-title('Received signal multiplied by pseudo code');
-subplot(313)
-plot(f,abs(fftshift(fft(demod,1024))),'linewidth',2);
-title('Demodulated signal spectrum before decision device ');
-        `
+subplot(3,1,1); stairs(tm, message, 'linewidth', 2); title('Message');
+subplot(3,1,2); stairs(tpn, pn_code, 'linewidth', 2); title('PN Code');
+subplot(3,1,3); stairs(tpn, DSSS, 'linewidth', 2); title('DSSS Signal');
+
+f = linspace(-Fs/2, Fs/2, 1024);
+figure;
+subplot(3,1,1); plot(f, abs(fftshift(fft(message, 1024))),'linewidth',2); title('Message Spectrum');
+subplot(3,1,2); plot(f, abs(fftshift(fft(pn_code, 1024))),'linewidth',2); title('PN Code Spectrum');
+subplot(3,1,3); plot(f, abs(fftshift(fft(DSSS, 1024))),'linewidth',2); title('DSSS Spectrum');
+
+figure;
+subplot(3,1,1); plot(f, abs(fftshift(fft(BPSK, 1024))),'linewidth',2); title('Transmitted Signal');
+subplot(3,1,2); plot(f, abs(fftshift(fft(rx, 1024))),'linewidth',2); title('Received Signal');
+subplot(3,1,3); plot(f, abs(fftshift(fft(demod, 1024))),'linewidth',2); title('Demodulated Signal');
+`
       } />
 
       <One topic={"FHSS"} text={
         `
-CS2 FHSS
+clc; close all;clear all;
 
-clc; clear all;
-num_bits = 20;               
-samples_per_bit = 120;            
-num_carriers = 6;                  
-samples = [10, 20, 30, 40, 60, 120];
+num_bits = 20; samples_per_bit = 120; num_carriers = 6; samples = [10, 20, 30, 40, 60, 120];
+disp('Enter your bit sequence:');
+bit_sequence = str2num(input('', 's'));
+if length(bit_sequence) ~= num_bits, error('Bit length mismatch!'); end
 
+input_signal = repelem(2*bit_sequence - 1, samples_per_bit);
 
-disp('Enter your bit sequence as a series of 1s and 0s separated by spaces (e.g., "1 0 1 1 0"):');
-manual_input = input('', 's'); g
-bit_sequence = str2num(manual_input); 
-
-if length(bit_sequence) ~= num_bits
-    error('The number of bits entered must match the defined number of bits (%d).', num_bits);
-end
-
-sequence = 2 * bit_sequence - 1;
-
-input_signal = repelem(sequence, samples_per_bit);
-
-
-t_carrier = linspace(0, 2*pi*num_bits, samples_per_bit*num_bits);
-carrier_signal = cos(t_carrier); 
-
-
-figure(1);
-subplot(4,1,1); plot(input_signal); axis([-100 2400 -1.5 1.5]);
-title('\\bf\\it Original Bit Sequence');
-
-
+carrier_signal = cos(linspace(0, 2*pi*num_bits, samples_per_bit*num_bits));
 bpsk_mod_signal = input_signal .* carrier_signal;
-subplot(4,1,2); plot(bpsk_mod_signal); axis([-100 2400 -1.5 1.5]);
-title('\\bf\\it BPSK Modulated Signal');
-
 
 carriers = cell(1, num_carriers);
 for i = 1:num_carriers
-    t = linspace(0, 2*pi, samples(i) + 1); t(end) = []; % Time for each carrier
+    t = linspace(0, 2*pi, samples(i) + 1); t(end) = [];
     carriers{i} = repmat(cos(t), 1, ceil(samples_per_bit / length(t)));
-    carriers{i} = carriers{i}(1:samples_per_bit); % Trim to exact length
+    carriers{i} = carriers{i}(1:samples_per_bit);
 end
-
 
 spread_signal = [];
 for i = 1:num_bits
-    carrier_idx = randi([1, num_carriers]); 
+    carrier_idx = randi([1, num_carriers]);
     spread_signal = [spread_signal carriers{carrier_idx}];
 end
-subplot(4,1,3); plot(spread_signal); axis([-100 2400 -1.5 1.5]);
-title('\\bf\\it Spread Signal with 6 frequencies');
-
 
 freq_hopped_sig = bpsk_mod_signal .* spread_signal;
-subplot(4,1,4); plot(freq_hopped_sig); axis([-100 2400 -1.5 1.5]);
-title('\\bf\\it Frequency Hopped Spread Spectrum Signal');
-
-
 bpsk_demodulated = freq_hopped_sig ./ spread_signal;
-figure(2);
-subplot(2,1,1); plot(bpsk_demodulated); axis([-100 2400 -1.5 1.5]);
-title('\\bf Demodulated BPSK Signal from Wide Spread');
-
-
 original_BPSK_signal = bpsk_demodulated ./ carrier_signal;
-subplot(2,1,2); plot(original_BPSK_signal); axis([-100 2400 -1.5 1.5]);
-title('\\bf Transmitted Original Bit Sequence');
+
+figure(1);
+subplot(4,1,1); plot(input_signal); title('Original Bit Sequence');
+subplot(4,1,2); plot(bpsk_mod_signal); title('BPSK Modulated Signal');
+subplot(4,1,3); plot(spread_signal); title('Spread Signal with 6 Frequencies');
+subplot(4,1,4); plot(freq_hopped_sig); title('Frequency Hopped Spread Signal');
+figure(2);
+subplot(2,1,1); plot(bpsk_demodulated); title('Demodulated BPSK Signal');
+subplot(2,1,2); plot(original_BPSK_signal); title('Transmitted Original Bit Sequence');
 `
       } />
 
-      <One topic={"Experiment 8"} text={
+      <One topic={"Experiment 8 A"} text={
 `
 clear all; clc;
-N = 1000;          
-SNR_dB = 10;     
-M = 4;           
-loop_bandwidth = 0.01; 
-true_phase = pi / 3;
-
-
-tx_symbols = exp(1j * (2 * pi * (0:M-1) / M)); 
-tx_data = randi([0 M-1], N, 1);               
-tx_signal = tx_symbols(tx_data + 1);          
-
+N = 1000; SNR_dB = 10; M = 4; loop_bandwidth = 0.01; true_phase = pi/3;
+tx_symbols = exp(1j * (2 * pi * (0:M-1) / M));
+tx_data = randi([0 M-1], N, 1);
+tx_signal = tx_symbols(tx_data + 1);
 noise = (1/sqrt(2*10^(SNR_dB/10))) * (randn(N, 1) + 1j * randn(N, 1));
-rx_signal = tx_signal .* exp(1j * true_phase) + noise; 
+rx_signal = tx_signal .* exp(1j * true_phase) + noise;
 
-
-estimated_phase_ml = angle(sum(conj(tx_signal) .* rx_signal)); 
-
-
-phase_error_pll = zeros(N, 1);
-estimated_phase_pll = zeros(N, 1);
-current_phase_estimate_pll = 0;
-
-for n = 1:N
- 
-    phase_error_pll(n) = angle(rx_signal(n) * exp(-1j * current_phase_estimate_pll)); 
-    current_phase_estimate_pll = current_phase_estimate_pll + loop_bandwidth * phase_error_pll(n);
-    estimated_phase_pll(n) = current_phase_estimate_pll;
-end
-
-
-corrected_rx_signal = rx_signal .* exp(-1j * estimated_phase_pll); % Corrected received signal
-
-
-figure;
-subplot(2, 1, 1);
-scatter(real(rx_signal), imag(rx_signal), 'filled');
-title('Received Signal Constellation Diagram');
-xlabel('In-Phase');
-ylabel('Quadrature');
-axis equal;
-grid on;
-
-subplot(2, 1, 2);
-scatter(real(corrected_rx_signal), imag(corrected_rx_signal), 'filled');
-title('Corrected Signal Constellation Diagram');
-xlabel('In-Phase');
-ylabel('Quadrature');
-axis equal;
-grid on;
-
-
-SNR_dB_range = 0:2:20;
-phase_error_variance = zeros(length(SNR_dB_range), 1);
-
-for idx = 1:length(SNR_dB_range)
-    SNR_dB = SNR_dB_range(idx);
-    noise_variance = 1/(2*10^(SNR_dB/10));
-    noise = sqrt(noise_variance) * (randn(N, 1) + 1j * randn(N, 1));
-    
-    
-    rx_signal = exp(1j * true_phase) + noise;
-    
-  
-    estimated_phase = angle(sum(rx_signal));
-    
-    
-    phase_error_variance(idx) = var(angle(rx_signal) - true_phase);
-end
-
-
-figure;
-plot(SNR_dB_range, phase_error_variance);
-xlabel('SNR (dB)');
-ylabel('Phase Error Variance');
-title('Effect of Noise on Phase Estimation');
-
+figure; 
+subplot(2, 1, 1); scatter(real(rx_signal), imag(rx_signal), 'filled'); 
+title('Received Signal Constellation Diagram'); xlabel('In-Phase'); ylabel('Quadrature'); axis equal;
 
 phase_error_dd = zeros(N, 1);
-phase_error_ndd = zeros(N, 1);
 estimated_phase_dd = zeros(N, 1);
-estimated_phase_ndd = zeros(N, 1);
-
-
 current_phase_estimate_dd = 0;
+for n = 1:N
+    detected_symbol = exp(1j * round(angle(rx_signal(n)) * M / (2 * pi)) * 2 * pi / M);
+    phase_error_dd(n) = angle(detected_symbol * exp(-1j * current_phase_estimate_dd));
+    current_phase_estimate_dd = current_phase_estimate_dd + loop_bandwidth * phase_error_dd(n);
+    estimated_phase_dd(n) = current_phase_estimate_dd;
+end
+
+corrected_rx_signal = rx_signal .* exp(-1j * estimated_phase_dd);
+
+subplot(2, 1, 2); scatter(real(corrected_rx_signal), imag(corrected_rx_signal), 'filled'); 
+title('Corrected Signal Constellation Diagram'); xlabel('In-Phase'); ylabel('Quadrature'); axis equal;
+
+figure;
+plot(1:N, estimated_phase_dd); 
+title('Decision-Directed Phase Estimate'); xlabel('Samples'); ylabel('Estimated Phase (radians)');
+`
+      } />
+
+<One topic={"Experiment 8 B"} text={
+`
+clear all; clc;
+
+N = 1000;
+SNR_dB = 10;
+M = 4;
+loop_bandwidth = 0.01;
+true_phase = pi/3;
+
+tx_symbols = exp(1j * (2 * pi * (0:M-1) / M));
+tx_data = randi([0 M-1], N, 1);
+tx_signal = tx_symbols(tx_data + 1);
+
+noise = (1/sqrt(2*10^(SNR_dB/10))) * (randn(N, 1) + 1j * randn(N, 1));
+rx_signal = tx_signal .* exp(1j * true_phase) + noise;
+
+phase_error_ndd = zeros(N, 1);
+estimated_phase_ndd = zeros(N, 1);
 current_phase_estimate_ndd = 0;
 
 for n = 1:N
-   
-    noise = (1/sqrt(2*10^(SNR_dB))) * (randn + 1j * randn);
-    rx_signal = tx_signal(n) * exp(1j * true_phase) + noise;
-
-    
-    detected_symbol = exp(1j * round(angle(rx_signal) * M / (2 * pi)) * 2 * pi / M); 
-    phase_error_dd(n) = angle(detected_symbol * exp(-1j * current_phase_estimate_dd)); 
-    current_phase_estimate_dd = current_phase_estimate_dd + loop_bandwidth * phase_error_dd(n);
-    estimated_phase_dd(n) = current_phase_estimate_dd;
-
-   
-    phase_error_ndd(n) = angle(rx_signal * exp(-1j * current_phase_estimate_ndd));
+    phase_error_ndd(n) = angle(rx_signal(n) * exp(-1j * current_phase_estimate_ndd));
     current_phase_estimate_ndd = current_phase_estimate_ndd + loop_bandwidth * phase_error_ndd(n);
     estimated_phase_ndd(n) = current_phase_estimate_ndd;
 end
 
+figure;
+scatter(real(tx_signal), imag(tx_signal), 'filled');
+title('Transmitted Signal Constellation');
+xlabel('In-Phase');
+ylabel('Quadrature');
+axis equal;
 
 figure;
-subplot(2, 1, 1);
-plot(1:N, estimated_phase_dd);
-title('Decision-Directed Phase Estimate');
-xlabel('Samples');
-ylabel('Estimated Phase (radians)');
+scatter(real(rx_signal), imag(rx_signal), 'filled');
+title('Received Signal Constellation');
+xlabel('In-Phase');
+ylabel('Quadrature');
+axis equal;
 
-subplot(2, 1, 2);
+figure;
 plot(1:N, estimated_phase_ndd);
 title('Non-Decision-Directed Phase Estimate');
 xlabel('Samples');
