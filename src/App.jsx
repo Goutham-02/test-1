@@ -16,7 +16,7 @@ int main(){
     printf("enter the data to be tx: ");
     do{
         scanf("%c", &ch);
-        if(ch=='\n'){
+        if(ch=='\\n'){
             break;
         }
         if(ch=='1'){
@@ -31,7 +31,7 @@ int main(){
             count=0;
             array[i++]=ch;
             }
-            }while(ch!='\n');
+            }while(ch!='\\n');
             
         strcat(array,"01111110");
         printf("the transmitted data after stuffing is: %s",array);
@@ -52,15 +52,13 @@ int main(){
                 }
            
         }
-        read_array[k]='\0';
-        printf("\n destuffed data at the reciever is ");
+        read_array[k]='\\0';
+        printf("\\n destuffed data at the reciever is ");
         for(i=0;i<k;i++){
             printf("%c",read_array[i]);
         }
         return 0;
 }
-
-
                         `
             } />
 
@@ -76,12 +74,12 @@ int main()
 char ch;
 char arr[100]={DLE,STX};
  int i=2,j;
-printf("\n Enter the data stream(CTRL+B->STX,CTRL+C->ETX,CTRL+P->DLE):\n");
+printf("\\n Enter the data stream(CTRL+B->STX,CTRL+C->ETX,CTRL+P->DLE):\\n");
 do
  {
  scanf("%c", &ch);
  printf("char is ",ch);
- if(ch=='\n')
+ if(ch=='\\n')
  break;
  if(ch==DLE)
  {
@@ -96,10 +94,10 @@ do
  printf("%c",ch);
  arr[i++]=ch;
  }
- while(ch!='\n');
+ while(ch!='\\n');
  arr[i++]=DLE;
  arr[i++]=ETX;
-printf("\n The stuffed stream is \n");
+printf("\\n The stuffed stream is \\n");
 for(j=0;j<i;j++)
  {
  if(arr[j]==DLE)
@@ -111,7 +109,7 @@ for(j=0;j<i;j++)
  else
   printf("%c",arr[j]);
  }
-printf("\n The de-stuffed data is \n");
+printf("\\n The de-stuffed data is \\n");
 for(j=2;j<i-2;j++)
  {
  if(arr[j]==DLE)
@@ -174,14 +172,14 @@ int main() {
     char ch;
 
     printf("Enter the data (Message) stream (only 0s and 1s): ");
-    while ((ch = getchar()) != '\n' && ch != EOF) {
+    while ((ch = getchar()) != '\\n' && ch != EOF) {
         if (ch == '0' || ch == '1') {
             array[length++] = ch - '0';
         }
     }
 
     if (length + DEGREE > MAX_BITS) {
-        printf("Error: Input too long.\n");
+        printf("Error: Input too long.\\n");
         return 1;
     }
 
@@ -196,23 +194,23 @@ int main() {
 
     calc_crc(result, total_length);
 
-    printf("\nThe transmitted frame is: ");
+    printf("\\nThe transmitted frame is: ");
     for (i = 0; i < length; ++i)
         printf("%d", array[i]);
     for (i = length; i < total_length; ++i)
         printf("%d", result[i]);
 
     // Decoding
-    printf("\nEnter the stream for which CRC has to be checked: ");
+    printf("\\nEnter the stream for which CRC has to be checked: ");
     length = 0;
-    while ((ch = getchar()) != '\n' && ch != EOF) {
+    while ((ch = getchar()) != '\\n' && ch != EOF) {
         if (ch == '0' || ch == '1') {
             array[length++] = ch - '0';
         }
     }
 
     if (length > MAX_BITS) {
-        printf("Error: Input too long.\n");
+        printf("Error: Input too long.\\n");
         return 1;
     }
 
@@ -221,7 +219,7 @@ int main() {
 
     calc_crc(result, length);
 
-    printf("\nCalculated Checksum: ");
+    printf("\\nCalculated Checksum: ");
     for (i = length - DEGREE; i < length; ++i)
         printf("%d", result[i]);
 
@@ -231,7 +229,7 @@ int main() {
         if (result[i] != 0)
             error = 1;
 
-    printf("\nCRC Check: %s\n", error ? "ERROR DETECTED" : "NO ERROR");
+    printf("\\nCRC Check: %s\\n", error ? "ERROR DETECTED" : "NO ERROR");
 
     return 0;
 }
@@ -261,7 +259,7 @@ void encrypt(const char *data, char *encoded) {
         else
             encoded[i] = data[i];
     }
-    encoded[len] = '\0';
+    encoded[len] = '\\0';
 }
 
 void decrypt(const char *data, char *decoded) {
@@ -284,7 +282,7 @@ void decrypt(const char *data, char *decoded) {
         if (!present)
             decoded[i] = data[i];
     }
-    decoded[len] = '\0';
+    decoded[len] = '\\0';
 }
 
 int main() {
@@ -294,13 +292,13 @@ int main() {
     fgets(data, MAX_LEN, stdin);
     
     // Remove trailing newline if present
-    data[strcspn(data, "\n")] = '\0';
+    data[strcspn(data, "\\n")] = '\\0';
 
     encrypt(data, encoded);
-    printf("Encoded string: %s\n", encoded);
+    printf("Encoded string: %s\\n", encoded);
 
     decrypt(encoded, decoded);
-    printf("Decoded string: %s\n", decoded);
+    printf("Decoded string: %s\\n", decoded);
 
     return 0;
 }
@@ -368,7 +366,7 @@ void encrypt(const char *data, char *output) {
             output[k++] = matrix[i][col];
         }
     }
-    output[k] = '\0';
+    output[k] = '\\0';
 }
 
 // Decrypt data using columnar transposition
@@ -404,7 +402,7 @@ void decrypt(const char *data, char *output) {
                 output[k++] = matrix[i][j];
         }
     }
-    output[k] = '\0';
+    output[k] = '\\0';
 }
 
 int main() {
@@ -412,13 +410,13 @@ int main() {
 
     printf("Enter data to encrypt (max %d chars): ", MAX - 1);
     fgets(data, MAX, stdin);
-    data[strcspn(data, "\n")] = '\0';  // Remove newline
+    data[strcspn(data, "\\n")] = '\\0';  // Remove newline
 
     encrypt(data, encrypted);
-    printf("\nEncrypted data: %s\n", encrypted);
+    printf("\\nEncrypted data: %s\\n", encrypted);
 
     decrypt(encrypted, decrypted);
-    printf("Decrypted data: %s\n", decrypted);
+    printf("Decrypted data: %s\\n", decrypted);
 
     return 0;
 }
@@ -486,9 +484,9 @@ int main() {
     init(total);
     sort();
 
-    printf("\nThe Sorted order of edges:\n");
+    printf("\\nThe Sorted order of edges:\\n");
     for (i = 0; i < edge_count; i++)
-        printf("Edge: %d, First node: %c, Second node: %c, Distance: %d\n",
+        printf("Edge: %d, First node: %c, Second node: %c, Distance: %d\\n",
                i, e[i].first_node + 65, e[i].second_node + 65, e[i].distance);
 
     i = 0;
@@ -508,10 +506,10 @@ int main() {
         i++;
     }
 
-    printf("\nMinimum Spanning Tree is:\n");
+    printf("\\nMinimum Spanning Tree is:\\n");
     for (i = 0; i < edge_count; ++i) {
         if (e[i].selected == 1) {
-            printf("%c <--> %c\tDistance: %d\n",
+            printf("%c <--> %c\\tDistance: %d\\n",
                    e[i].first_node + 65, e[i].second_node + 65, e[i].distance);
         }
     }
@@ -550,7 +548,7 @@ int prim(int cost[10][10], int source, int n) {
 
         visited[u] = 1;
         sum += cmp[u];
-        printf("\n %d -> %d  (weight = %d)", vertex[u], u, cmp[u]);
+        printf("\\n %d -> %d  (weight = %d)", vertex[u], u, cmp[u]);
 
         for (v = 1; v <= n; v++) {
             if (!visited[v] && cost[u][v] < cmp[v]) {
@@ -570,7 +568,7 @@ int main() {
     printf("Enter the number of vertices: ");
     scanf("%d", &n);
 
-    printf("Enter the cost matrix (0 = self-loop, 999 = no edge):\n");
+    printf("Enter the cost matrix (0 = self-loop, 999 = no edge):\\n");
     for (i = 1; i <= n; i++) {
         for (j = 1; j <= n; j++) {
             scanf("%d", &a[i][j]);
@@ -587,7 +585,7 @@ int main() {
     }
 
     if (!valid) {
-        printf("\nInvalid cost matrix! It must be symmetric with 0s on the diagonal.\n");
+        printf("\\nInvalid cost matrix! It must be symmetric with 0s on the diagonal.\\n");
         return 1;
     }
 
@@ -595,7 +593,7 @@ int main() {
     scanf("%d", &source);
 
     total_cost = prim(a, source, n);
-    printf("\n\nTotal cost of Minimum Spanning Tree = %d\n", total_cost);
+    printf("\\n\\nTotal cost of Minimum Spanning Tree = %d\\n", total_cost);
 
     return 0;
 }
@@ -641,9 +639,9 @@ long modexp(long b, long e, long m) {
 
 int main() {
     long p, q, m;
-    printf("Enter two primes p and q, and the message m to encrypt:\n");
+    printf("Enter two primes p and q, and the message m to encrypt:\\n");
     if (scanf("%ld%ld%ld", &p, &q, &m) != 3) {
-        printf("Invalid input!\n");
+        printf("Invalid input!\\n");
         return 1;
     }
 
@@ -655,7 +653,7 @@ int main() {
     while (gcd(e, phi) > 1) {
         e += 2;
         if (e >= phi) {
-            printf("No valid e found.\n");
+            printf("No valid e found.\\n");
             return 1;
         }
     }
@@ -664,10 +662,10 @@ int main() {
     long c = modexp(m, e, n);  // encryption
     long decrypted = modexp(c, d, n);  // decryption
 
-    printf("Public key (e, n): (%ld, %ld)\n", e, n);
-    printf("Private key (d, n): (%ld, %ld)\n", d, n);
-    printf("Encrypted message: %ld\n", c);
-    printf("Decrypted message: %ld\n", decrypted);
+    printf("Public key (e, n): (%ld, %ld)\\n", e, n);
+    printf("Private key (d, n): (%ld, %ld)\\n", d, n);
+    printf("Encrypted message: %ld\\n", c);
+    printf("Decrypted message: %ld\\n", decrypted);
 
     return 0;
 }
