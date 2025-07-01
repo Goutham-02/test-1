@@ -3,7 +3,7 @@ import One from './components/One.jsx'
 function App() {
 
     return (
-        <>
+        <div style={{ padding: "20px" }}>
             <One topic={"exp01.bit_stuff"} text={
                 `
 /* Program for BIT STUFFING and DESTUFFING */
@@ -673,7 +673,7 @@ int main() {
                         `
             } />
 
-        </>
+        </div>
     )
 }
 
