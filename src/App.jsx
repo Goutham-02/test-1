@@ -2,344 +2,681 @@ import One from './components/One.jsx'
 
 function App() {
 
-  return (
-    <>
-      <One topic={"Experiment 3"} text={
-        `
-clc; clear; close all;
-N = 1e5; M = 4; L = 4; beta = 1; Nsym = 8; EbN0dB = 100;
-snr = 10*log10(log2(M)) + EbN0dB;
-d = randi([0 M-1], 1, N);
-u = pammod(d, M);
-s = filter(rcosdesign(beta, Nsym, L), 1, upsample(u, L));
-r = awgn(s, snr, 'measured');
-vCap = filter(rcosdesign(beta, Nsym, L), 1, r);
-filtDelay = Nsym * L / 2;
-dCap = vCap(2*filtDelay+1:L:end-(2*filtDelay))/L;
-upsampled_u = upsample(u, L);
-figure;
-subplot(3,2,1); stem(u(1:20)); title('PAM Modulated Symbols');
-subplot(3,2,2); stem(upsampled_u(1:150)); title('Oversampled Symbols');
-subplot(3,2,3); plot(s(1:150), 'r'); title('Pulse Shaped Symbols');
-subplot(3,2,4); plot(r(1:150), 'r'); title('Received Signal');
-subplot(3,2,5); plot(vCap(1:150), 'r'); title('Matched Filter Output');
-subplot(3,2,6); stem(dCap(1:20)); title('Symbol Rate Sampled Output');
-figure;
-plotEyeDiagram(vCap, L, 3*L,2*filtDelay,100)
-`
-      } />
+    return (
+        <>
+            <One topic={"exp01.bit_stuff"} text={
+                `
+/* Program for BIT STUFFING and DESTUFFING */
+#include <stdio.h>
+#include <string.h>
 
-      <One topic={"7A - FSEL"} text={
-`
-clc;clear all;close all;
-fs = 1e6;
-numSamples = 10000;         
-numPaths = 5;             
-maxDelay = 3e-6;             
-dopplerShift = 100;         
-% Generate an impulse signal (delta function)
-impulseSignal = [1; zeros(numSamples-1, 1)];  
-% Create a frequency-selective Rayleigh fading channel
-rayleighChan = comm.RayleighChannel( ...
-    'SampleRate', fs, ...
-    'PathDelays', linspace(0, maxDelay, numPaths), ...  
-    'AveragePathGains', [-2 -3 -6 -8 -10], ...          
-    'MaximumDopplerShift', dopplerShift, ...            
-    'NormalizePathGains', true);
-% Pass the impulse signal through the frequency-selective fading channel
-rxImpulseSignal = rayleighChan(impulseSignal);
-% Plot the impulse response
-timeAxis = (0:numSamples-1)/fs;  
-figure;
-stem(timeAxis(1:100), 20*log10(abs(rxImpulseSignal(1:100))));  
-title('Impulse Response of Frequency-Selective Rayleigh Fading Channel');
-xlabel('Time (s)');ylabel('Gain (dB)');grid on;
-% Frequency Response
-NFFT = 1024;  % FFT size for frequency response
-freqResponse = fft(rxImpulseSignal, NFFT);  
-freqAxis = linspace(-fs/2, fs/2, NFFT);  
-figure;
-plot(freqAxis/1e6, 20*log10(abs(fftshift(freqResponse))));  
-title('Frequency Response of Frequency-Selective Rayleigh Fading Channel');
-xlabel('Frequency (MHz)');ylabel('Magnitude (dB)');grid on;
-`
-      } />
-
-      <One topic={"7B - Non Selective"} text={
-`
-clc;clear all;close all
-fs = 1e6;                   
-numSamples = 10000;         
-maxDopplerShift = 100;      
-txSignal = (randn(numSamples, 1) + 1j*randn(numSamples, 1)); 
-rayleighChan = comm.RayleighChannel( ...
-    'SampleRate', fs, ...
-    'MaximumDopplerShift', maxDopplerShift, ... 
-    'NormalizePathGains', true);            
-
-rxSignal = rayleighChan(txSignal);
-
-figure;subplot(2, 1, 1);
-plot(real(txSignal(1:100)), 'b-o');hold on;
-plot(imag(txSignal(1:100)), 'r-x');
-title('Transmitted Signal (First 100 Samples)');
-xlabel('Sample Index');ylabel('Amplitude');
-legend('Real Part', 'Imaginary Part');grid on;
-subplot(2, 1, 2);
-plot(real(rxSignal(1:100)), 'b-o');hold on;
-plot(imag(rxSignal(1:100)), 'r-x');
-title('Received Signal through Flat Rayleigh Fading Channel (First 100 Samples)');
-xlabel('Sample Index');ylabel('Amplitude');
-legend('Real Part', 'Imaginary Part');grid on;
-
-figure;
-pwelch(txSignal, [], [], [], fs, 'centered');hold on;
-pwelch(rxSignal, [], [], [], fs, 'centered');
-title('Power Spectral Density (PSD) of Transmitted and Received Signals');
-xlabel('Frequency (Hz)');ylabel('Power/Frequency (dB/Hz)');
-legend('Transmitted Signal', 'Received Signal');grid on;
-`
-      } />
-
-      <One topic={"DSSS"} text={
-        `
-clc;close all;clear all;
-Fs = 1000; fc = 100; fp = 4; bit_t = 0.1;
-m = [0 0 1 1 1 1 0 0]*2-1;
-message = reshape(repmat(m, fp, 1), 1, []);
-
-pn_code = randi([0,1], 1, length(message))*2-1;
-DSSS = message .* pn_code;
-
-t = 0:1/Fs:(bit_t-1/Fs);
-carrier = cos(2*pi*fc*t);
-BPSK = reshape(kron(DSSS, carrier), 1, []);
-
-rx = BPSK .* reshape(kron(pn_code, ones(1, length(t))), 1, []);
-demod = rx .* reshape(repmat(carrier, 1, length(DSSS)), 1, []);
-
-pn_size = length(pn_code); tpn = linspace(0, length(m)*bit_t-bit_t/fp, pn_size);
-tm = 0:bit_t/fp:length(m)*bit_t-bit_t/fp;
-
-figure;
-subplot(3,1,1); stairs(tm, message, 'linewidth', 2); title('Message');
-subplot(3,1,2); stairs(tpn, pn_code, 'linewidth', 2); title('PN Code');
-subplot(3,1,3); stairs(tpn, DSSS, 'linewidth', 2); title('DSSS Signal');
-
-f = linspace(-Fs/2, Fs/2, 1024);
-figure;
-subplot(3,1,1); plot(f, abs(fftshift(fft(message, 1024))),'linewidth',2); title('Message Spectrum');
-subplot(3,1,2); plot(f, abs(fftshift(fft(pn_code, 1024))),'linewidth',2); title('PN Code Spectrum');
-subplot(3,1,3); plot(f, abs(fftshift(fft(DSSS, 1024))),'linewidth',2); title('DSSS Spectrum');
-
-figure;
-subplot(3,1,1); plot(f, abs(fftshift(fft(BPSK, 1024))),'linewidth',2); title('Transmitted Signal');
-subplot(3,1,2); plot(f, abs(fftshift(fft(rx, 1024))),'linewidth',2); title('Received Signal');
-subplot(3,1,3); plot(f, abs(fftshift(fft(demod, 1024))),'linewidth',2); title('Demodulated Signal');
-`
-      } />
-
-      <One topic={"FHSS"} text={
-        `
-clc; close all;clear all;
-
-num_bits = 20; samples_per_bit = 120; num_carriers = 6; samples = [10, 20, 30, 40, 60, 120];
-disp('Enter your bit sequence:');
-bit_sequence = str2num(input('', 's'));
-if length(bit_sequence) ~= num_bits, error('Bit length mismatch!'); end
-
-input_signal = repelem(2*bit_sequence - 1, samples_per_bit);
-
-carrier_signal = cos(linspace(0, 2*pi*num_bits, samples_per_bit*num_bits));
-bpsk_mod_signal = input_signal .* carrier_signal;
-
-carriers = cell(1, num_carriers);
-for i = 1:num_carriers
-    t = linspace(0, 2*pi, samples(i) + 1); t(end) = [];
-    carriers{i} = repmat(cos(t), 1, ceil(samples_per_bit / length(t)));
-    carriers{i} = carriers{i}(1:samples_per_bit);
-end
-
-spread_signal = [];
-for i = 1:num_bits
-    carrier_idx = randi([1, num_carriers]);
-    spread_signal = [spread_signal carriers{carrier_idx}];
-end
-
-freq_hopped_sig = bpsk_mod_signal .* spread_signal;
-bpsk_demodulated = freq_hopped_sig ./ spread_signal;
-original_BPSK_signal = bpsk_demodulated ./ carrier_signal;
-
-figure(1);
-subplot(4,1,1); plot(input_signal); title('Original Bit Sequence');
-subplot(4,1,2); plot(bpsk_mod_signal); title('BPSK Modulated Signal');
-subplot(4,1,3); plot(spread_signal); title('Spread Signal with 6 Frequencies');
-subplot(4,1,4); plot(freq_hopped_sig); title('Frequency Hopped Spread Signal');
-figure(2);
-subplot(2,1,1); plot(bpsk_demodulated); title('Demodulated BPSK Signal');
-subplot(2,1,2); plot(original_BPSK_signal); title('Transmitted Original Bit Sequence');
-`
-      } />
-
-      <One topic={"Experiment 8 A"} text={
-`
-clear all; clc;
-N = 1000; SNR_dB = 10; M = 4; loop_bandwidth = 0.01; true_phase = pi/3;
-tx_symbols = exp(1j * (2 * pi * (0:M-1) / M));
-tx_data = randi([0 M-1], N, 1);
-tx_signal = tx_symbols(tx_data + 1);
-noise = (1/sqrt(2*10^(SNR_dB/10))) * (randn(N, 1) + 1j * randn(N, 1));
-rx_signal = tx_signal .* exp(1j * true_phase) + noise;
-
-figure; 
-subplot(2, 1, 1); scatter(real(rx_signal), imag(rx_signal), 'filled'); 
-title('Received Signal Constellation Diagram'); xlabel('In-Phase'); ylabel('Quadrature'); axis equal;
-
-phase_error_dd = zeros(N, 1);
-estimated_phase_dd = zeros(N, 1);
-current_phase_estimate_dd = 0;
-for n = 1:N
-    detected_symbol = exp(1j * round(angle(rx_signal(n)) * M / (2 * pi)) * 2 * pi / M);
-    phase_error_dd(n) = angle(detected_symbol * exp(-1j * current_phase_estimate_dd));
-    current_phase_estimate_dd = current_phase_estimate_dd + loop_bandwidth * phase_error_dd(n);
-    estimated_phase_dd(n) = current_phase_estimate_dd;
-end
-
-corrected_rx_signal = rx_signal .* exp(-1j * estimated_phase_dd);
-
-subplot(2, 1, 2); scatter(real(corrected_rx_signal), imag(corrected_rx_signal), 'filled'); 
-title('Corrected Signal Constellation Diagram'); xlabel('In-Phase'); ylabel('Quadrature'); axis equal;
-
-figure;
-plot(1:N, estimated_phase_dd); 
-title('Decision-Directed Phase Estimate'); xlabel('Samples'); ylabel('Estimated Phase (radians)');
-`
-      } />
-
-<One topic={"Experiment 8 B"} text={
-`
-clear all; clc;
-
-N = 1000;
-SNR_dB = 10;
-M = 4;
-loop_bandwidth = 0.01;
-true_phase = pi/3;
-
-tx_symbols = exp(1j * (2 * pi * (0:M-1) / M));
-tx_data = randi([0 M-1], N, 1);
-tx_signal = tx_symbols(tx_data + 1);
-
-noise = (1/sqrt(2*10^(SNR_dB/10))) * (randn(N, 1) + 1j * randn(N, 1));
-rx_signal = tx_signal .* exp(1j * true_phase) + noise;
-
-phase_error_ndd = zeros(N, 1);
-estimated_phase_ndd = zeros(N, 1);
-current_phase_estimate_ndd = 0;
-
-for n = 1:N
-    phase_error_ndd(n) = angle(rx_signal(n) * exp(-1j * current_phase_estimate_ndd));
-    current_phase_estimate_ndd = current_phase_estimate_ndd + loop_bandwidth * phase_error_ndd(n);
-    estimated_phase_ndd(n) = current_phase_estimate_ndd;
-end
-
-figure;
-scatter(real(tx_signal), imag(tx_signal), 'filled');
-title('Transmitted Signal Constellation');
-xlabel('In-Phase');
-ylabel('Quadrature');
-axis equal;
-
-figure;
-scatter(real(rx_signal), imag(rx_signal), 'filled');
-title('Received Signal Constellation');
-xlabel('In-Phase');
-ylabel('Quadrature');
-axis equal;
-
-figure;
-plot(1:N, estimated_phase_ndd);
-title('Non-Decision-Directed Phase Estimate');
-xlabel('Samples');
-ylabel('Estimated Phase (radians)');
-`
-      } />
-
-      <One topic={"Experiment 6"} text={
-`
-L        = 4;         
-rollOff  = 0.5;      
-rcDelay  = 10;  
-
-htx = rcosdesign(rollOff, 6, 4);
-
-hrx  = conj(fliplr(htx));
-p = conv(htx,hrx);
-M = 2;
-data = zeros(1, 2*rcDelay);
-data(1:2:end) = 1;
+int main(){
+    char ch, array[50]="01111110", read_array[50];
+    int count=0,i=8,j,k;
+    printf("enter the data to be tx: ");
+    do{
+        scanf("%c", &ch);
+        if(ch=='\n'){
+            break;
+        }
+        if(ch=='1'){
+            count++;
+            array[i++]=ch;
+            if(count==5){
+                array[i++]='0';
+                count=0;
+            }
+        }
+        else{
+            count=0;
+            array[i++]=ch;
+            }
+            }while(ch!='\n');
+            
+        strcat(array,"01111110");
+        printf("the transmitted data after stuffing is: %s",array);
+        j=strlen(array);
+        count=0,k=0;
+        for(i=8;i<j-8;i++){
+            if(array[i]=='1'){
+                count++;
+                read_array[k++]=array[i];
+                if(count==5 && array[i+1]=='0'){
+                    i++;
+                    count=0;
+                }
+            }
+            else{
+                count=0;
+                read_array[k++]=array[i];
+                }
+           
+        }
+        read_array[k]='\0';
+        printf("\n destuffed data at the reciever is ");
+        for(i=0;i<k;i++){
+            printf("%c",read_array[i]);
+        }
+        return 0;
+}
 
 
-txSym = real(pammod(data, M));
+                        `
+            } />
 
+            <One topic={"exp01.byte_stuff"} text={
+                `
+                        #include<stdio.h>
+#include<string.h>
+#define DLE 16
+#define STX 2
+#define ETX 3
+int main()
+{
+char ch;
+char arr[100]={DLE,STX};
+ int i=2,j;
+printf("\n Enter the data stream(CTRL+B->STX,CTRL+C->ETX,CTRL+P->DLE):\n");
+do
+ {
+ scanf("%c", &ch);
+ printf("char is ",ch);
+ if(ch=='\n')
+ break;
+ if(ch==DLE)
+ {
+ arr[i++]=DLE;
+ printf("DLE");
+ }
+ else if(ch==2)
+  printf("STX");
+ else if(ch==3)
+  printf("ETX");
+ else
+ printf("%c",ch);
+ arr[i++]=ch;
+ }
+ while(ch!='\n');
+ arr[i++]=DLE;
+ arr[i++]=ETX;
+printf("\n The stuffed stream is \n");
+for(j=0;j<i;j++)
+ {
+ if(arr[j]==DLE)
+  printf("DLE");
+ else if(arr[j]==STX)
+  printf("STX");
+ else if(arr[j]==ETX)
+  printf("ETX");
+ else
+  printf("%c",arr[j]);
+ }
+printf("\n The de-stuffed data is \n");
+for(j=2;j<i-2;j++)
+ {
+ if(arr[j]==DLE)
+ {
+ printf("DLE");
+ j++;
+ }
+ else if(arr[j]==STX)
+ printf("STX");
+else if(arr[j]==ETX)
+ printf("ETX");
+ else
+ printf("%c",arr[j]);
+ }
+return 0;
+}
 
-txUpSequence = upsample(txSym, L);
+                        `
+            } />
 
+            <One topic={"exp01.CRC"} text={
+                `
+#include <stdio.h>
 
-txSequence = filter(htx, 1, txUpSequence);
+#define DEGREE 16
+#define MAX_BITS 128  // Increased to avoid overflow
 
+int mod2add(int, int);
+int getnext(int*, int, int);
+void calc_crc(int*, int);
+int result[MAX_BITS];
 
-timeOffset = 1; 
-rxDelayed = [zeros(1, timeOffset), txSequence(1:end-timeOffset)];
+void calc_crc(int* result_array, int length) {
+    int ccitt[] = {1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1}; // 17 bits
+    int i = 0, pos = 0, newpos;
 
+    while (pos < length - DEGREE) {
+        if (result_array[pos] == 1) {
+            for (i = 0; i < DEGREE + 1; ++i)
+                result_array[pos + i] = mod2add(result_array[pos + i], ccitt[i]);
+        }
+        newpos = getnext(result_array, pos + 1, length);
+        if (newpos <= pos) break;
+        pos = newpos;
+    }
+}
 
-mfOutput = filter(hrx, 1, rxDelayed);
+int getnext(int array[], int pos, int length) {
+    while (pos < length && array[pos] == 0)
+        ++pos;
+    return pos;
+}
 
-rxSym = downsample(mfOutput, L);
+int mod2add(int x, int y) {
+    return (x == y ? 0 : 1);
+}
 
-selectedSamples = upsample(rxSym, L);
-selectedSamples(selectedSamples == 0) = NaN;
+int main() {
+    int array[MAX_BITS], length = 0, i = 0;
+    char ch;
 
+    printf("Enter the data (Message) stream (only 0s and 1s): ");
+    while ((ch = getchar()) != '\n' && ch != EOF) {
+        if (ch == '0' || ch == '1') {
+            array[length++] = ch - '0';
+        }
+    }
 
-figure
-plot(complex(rxSym(rcDelay+1:end)), 'o')
-grid on
-xlim([-1.5 1.5])
-title('Rx Scatterplot')
-xlabel('In-phase (I)')
-ylabel('Quadrature (Q)')
+    if (length + DEGREE > MAX_BITS) {
+        printf("Error: Input too long.\n");
+        return 1;
+    }
 
-figure
-stem(rxSym)
-title('Symbol Sequence with delay')
-xlabel('Symbol Index')
-ylabel('Amplitude')
+    // Append DEGREE zeros
+    for (i = 0; i < DEGREE; ++i)
+        array[length + i] = 0;
 
+    int total_length = length + DEGREE;
 
-rxSym = downsample(mfOutput, L, timeOffset);
+    for (i = 0; i < total_length; ++i)
+        result[i] = array[i];
 
-selectedSamples = upsample(rxSym, L);
-selectedSamples(selectedSamples == 0) = NaN;
+    calc_crc(result, total_length);
 
-figure
-plot(complex(rxSym(rcDelay+1:end)), 'o')
-grid on
-xlim([-1.5 1.5])
-title('Rx Scatterplot')
-xlabel('In-phase (I)')
-ylabel('Quadrature (Q)')
+    printf("\nThe transmitted frame is: ");
+    for (i = 0; i < length; ++i)
+        printf("%d", array[i]);
+    for (i = length; i < total_length; ++i)
+        printf("%d", result[i]);
 
-figure
-stem(rxSym)
-title('Symbol Sequence without delay')
-xlabel('Symbol Index')
-ylabel('Amplitude')
-`
-      } />
+    // Decoding
+    printf("\nEnter the stream for which CRC has to be checked: ");
+    length = 0;
+    while ((ch = getchar()) != '\n' && ch != EOF) {
+        if (ch == '0' || ch == '1') {
+            array[length++] = ch - '0';
+        }
+    }
 
-    </>
-  )
+    if (length > MAX_BITS) {
+        printf("Error: Input too long.\n");
+        return 1;
+    }
+
+    for (i = 0; i < length; ++i)
+        result[i] = array[i];
+
+    calc_crc(result, length);
+
+    printf("\nCalculated Checksum: ");
+    for (i = length - DEGREE; i < length; ++i)
+        printf("%d", result[i]);
+
+    // Optional: Check if all zeros
+    int error = 0;
+    for (i = length - DEGREE; i < length; ++i)
+        if (result[i] != 0)
+            error = 1;
+
+    printf("\nCRC Check: %s\n", error ? "ERROR DETECTED" : "NO ERROR");
+
+    return 0;
+}
+
+                        `
+            } />
+
+            <One topic={"exp02.substitution"} text={
+                `
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#define MAX_LEN 100
+
+// Substitution sequence
+char seq[36] = "qwertyuiopasdfghjklzxcvbnm1234567890";
+
+void encrypt(const char *data, char *encoded) {
+    int len = strlen(data);
+    for (int i = 0; i < len; i++) {
+        if (isupper(data[i]))
+            encoded[i] = seq[data[i] - 'A'];
+        else if (islower(data[i]))
+            encoded[i] = toupper(seq[data[i] - 'a']);
+        else if (isdigit(data[i]))
+            encoded[i] = seq[data[i] - '0' + 26];
+        else
+            encoded[i] = data[i];
+    }
+    encoded[len] = '\0';
+}
+
+void decrypt(const char *data, char *decoded) {
+    int len = strlen(data);
+    int present;
+    for (int i = 0; i < len; i++) {
+        present = 0;
+        for (int j = 0; j < 36; ++j) {
+            if (seq[j] == tolower(data[i])) {
+                if (isupper(data[i]))
+                    decoded[i] = 'A' + j;
+                else if (islower(data[i]))
+                    decoded[i] = 'a' + j;
+                else
+                    decoded[i] = '0' + (j - 26);
+                present = 1;
+                break;
+            }
+        }
+        if (!present)
+            decoded[i] = data[i];
+    }
+    decoded[len] = '\0';
+}
+
+int main() {
+    char data[MAX_LEN], encoded[MAX_LEN], decoded[MAX_LEN];
+
+    printf("Enter data to encrypt (max %d characters): ", MAX_LEN - 1);
+    fgets(data, MAX_LEN, stdin);
+    
+    // Remove trailing newline if present
+    data[strcspn(data, "\n")] = '\0';
+
+    encrypt(data, encoded);
+    printf("Encoded string: %s\n", encoded);
+
+    decrypt(encoded, decoded);
+    printf("Decoded string: %s\n", decoded);
+
+    return 0;
+}
+
+                        `
+            } />
+
+            <One topic={"exp02.transposition"} text={
+                `
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 100
+#define COLS 8
+
+// Keyword
+const char keyword[] = "MEGABUCK";
+
+// Generate the column sequence for transposition based on the keyword
+void generate_sequence(int seq[]) {
+    for (int i = 0; i < COLS; i++) {
+        int count = 0;
+        for (int j = 0; j < COLS; j++) {
+            if (keyword[i] > keyword[j])
+                count++;
+        }
+        seq[i] = count;
+    }
+}
+
+// Encrypt data using columnar transposition
+void encrypt(const char *data, char *output) {
+    int seq[COLS];
+    generate_sequence(seq);
+
+    int len = strlen(data);
+    int rows = len / COLS;
+    if (len % COLS != 0)
+        rows++;
+
+    char matrix[rows][COLS];
+
+    // Fill matrix row-wise
+    int k = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (k < len)
+                matrix[i][j] = data[k++];
+            else
+                matrix[i][j] = '.';  // Padding character
+        }
+    }
+
+    // Read column-wise in sequence order
+    k = 0;
+    for (int s = 0; s < COLS; s++) {
+        int col = 0;
+        for (int j = 0; j < COLS; j++) {
+            if (seq[j] == s) {
+                col = j;
+                break;
+            }
+        }
+        for (int i = 0; i < rows; i++) {
+            output[k++] = matrix[i][col];
+        }
+    }
+    output[k] = '\0';
+}
+
+// Decrypt data using columnar transposition
+void decrypt(const char *data, char *output) {
+    int seq[COLS];
+    generate_sequence(seq);
+
+    int len = strlen(data);
+    int rows = len / COLS;
+
+    char matrix[rows][COLS];
+
+    // Fill columns in sequence order
+    int k = 0;
+    for (int s = 0; s < COLS; s++) {
+        int col = 0;
+        for (int j = 0; j < COLS; j++) {
+            if (seq[j] == s) {
+                col = j;
+                break;
+            }
+        }
+        for (int i = 0; i < rows; i++) {
+            matrix[i][col] = data[k++];
+        }
+    }
+
+    // Read matrix row-wise
+    k = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (matrix[i][j] != '.')
+                output[k++] = matrix[i][j];
+        }
+    }
+    output[k] = '\0';
+}
+
+int main() {
+    char data[MAX], encrypted[MAX], decrypted[MAX];
+
+    printf("Enter data to encrypt (max %d chars): ", MAX - 1);
+    fgets(data, MAX, stdin);
+    data[strcspn(data, "\n")] = '\0';  // Remove newline
+
+    encrypt(data, encrypted);
+    printf("\nEncrypted data: %s\n", encrypted);
+
+    decrypt(encrypted, decrypted);
+    printf("Decrypted data: %s\n", decrypted);
+
+    return 0;
+}
+
+                        `
+            } />
+
+            <One topic={"exp03.kruskal_MST"} text={
+                `
+#include <stdio.h>
+#include <string.h>
+
+struct node {
+    int set;
+} node[100];
+
+struct edge {
+    int first_node, second_node, selected, distance;
+} e[100];
+
+int edge_count = 0;
+
+void getdata(int index, int total) {
+    for (int i = index; i < total; i++) {
+        if (i != index) {
+            printf("Enter distance between Vertex %c and %c: ", index + 65, i + 65);
+            scanf("%d", &e[edge_count].distance);
+            e[edge_count].first_node = index;
+            e[edge_count].second_node = i;
+            ++edge_count;
+        }
+    }
+}
+
+void init(int total) {
+    for (int i = 0; i < total; i++)
+        node[i].set = i;
+    for (int i = 0; i < edge_count; i++)
+        e[i].selected = -1;
+}
+
+void sort() {
+    int i, j;
+    struct edge temp;
+    for (i = 0; i < edge_count - 1; i++) {
+        for (j = 0; j < edge_count - i - 1; j++) {
+            if (e[j].distance > e[j + 1].distance) {
+                temp = e[j];
+                e[j] = e[j + 1];
+                e[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    int i, total, j, k, m, n, edgeselected = 0, nodel, noder;
+
+    printf("Enter the number of nodes: ");
+    scanf("%d", &total);
+
+    for (i = 0; i < total; i++)
+        getdata(i, total);
+
+    init(total);
+    sort();
+
+    printf("\nThe Sorted order of edges:\n");
+    for (i = 0; i < edge_count; i++)
+        printf("Edge: %d, First node: %c, Second node: %c, Distance: %d\n",
+               i, e[i].first_node + 65, e[i].second_node + 65, e[i].distance);
+
+    i = 0;
+    while (edgeselected < total - 1) {
+        nodel = e[i].first_node;
+        noder = e[i].second_node;
+        if (node[nodel].set != node[noder].set) {
+            e[i].selected = 1;
+            edgeselected++;
+            m = node[nodel].set;
+            k = node[noder].set;
+            for (n = 0; n < total; n++) {
+                if (node[n].set == k)
+                    node[n].set = m;
+            }
+        }
+        i++;
+    }
+
+    printf("\nMinimum Spanning Tree is:\n");
+    for (i = 0; i < edge_count; ++i) {
+        if (e[i].selected == 1) {
+            printf("%c <--> %c\tDistance: %d\n",
+                   e[i].first_node + 65, e[i].second_node + 65, e[i].distance);
+        }
+    }
+
+    return 0;
+}
+
+                        `
+            } />
+
+            <One topic={"exp03.prims_algo"} text={
+                `
+#include <stdio.h>
+#define INFINITY 999
+
+int prim(int cost[10][10], int source, int n) {
+    int i, j, sum = 0, visited[10], cmp[10], vertex[10];
+    int min, u = 0, v;
+
+    for (i = 1; i <= n; i++) {
+        vertex[i] = source;
+        visited[i] = 0;
+        cmp[i] = cost[source][i];
+    }
+    visited[source] = 1;
+
+    for (i = 1; i <= n - 1; i++) {
+        min = INFINITY;
+
+        for (j = 1; j <= n; j++) {
+            if (!visited[j] && cmp[j] < min) {
+                min = cmp[j];
+                u = j;
+            }
+        }
+
+        visited[u] = 1;
+        sum += cmp[u];
+        printf("\n %d -> %d  (weight = %d)", vertex[u], u, cmp[u]);
+
+        for (v = 1; v <= n; v++) {
+            if (!visited[v] && cost[u][v] < cmp[v]) {
+                cmp[v] = cost[u][v];
+                vertex[v] = u;
+            }
+        }
+    }
+
+    return sum;
+}
+
+int main() {
+    int a[10][10], n, i, j, total_cost, source;
+    int valid = 1;
+
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+
+    printf("Enter the cost matrix (0 = self-loop, 999 = no edge):\n");
+    for (i = 1; i <= n; i++) {
+        for (j = 1; j <= n; j++) {
+            scanf("%d", &a[i][j]);
+        }
+    }
+
+    // Validate symmetry and diagonal
+    for (i = 1; i <= n; i++) {
+        for (j = 1; j <= n; j++) {
+            if (a[i][j] != a[j][i] || a[i][i] != 0) {
+                valid = 0;
+            }
+        }
+    }
+
+    if (!valid) {
+        printf("\nInvalid cost matrix! It must be symmetric with 0s on the diagonal.\n");
+        return 1;
+    }
+
+    printf("Enter the source vertex (1 to %d): ", n);
+    scanf("%d", &source);
+
+    total_cost = prim(a, source, n);
+    printf("\n\nTotal cost of Minimum Spanning Tree = %d\n", total_cost);
+
+    return 0;
+}
+
+                        `
+            } />
+
+            <One topic={"exp08.RSA"} text={
+                `
+#include <stdio.h>
+
+long gcd(long a, long b) {
+    return b ? gcd(b, a % b) : a;
+}
+
+long ext(long a, long b, long *x, long *y) {
+    if (!b) {
+        *x = 1;
+        *y = 0;
+        return a;
+    }
+    long x1, y1, g = ext(b, a % b, &x1, &y1);
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+    return g;
+}
+
+long inv(long e, long phi) {
+    long x, y;
+    ext(e, phi, &x, &y);
+    return (x % phi + phi) % phi;
+}
+
+long modexp(long b, long e, long m) {
+    long r = 1;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
+
+int main() {
+    long p, q, m;
+    printf("Enter two primes p and q, and the message m to encrypt:\n");
+    if (scanf("%ld%ld%ld", &p, &q, &m) != 3) {
+        printf("Invalid input!\n");
+        return 1;
+    }
+
+    long n = p * q;
+    long phi = (p - 1) * (q - 1);
+    long e = 3;
+
+    // Pick smallest odd e that is co-prime to phi
+    while (gcd(e, phi) > 1) {
+        e += 2;
+        if (e >= phi) {
+            printf("No valid e found.\n");
+            return 1;
+        }
+    }
+
+    long d = inv(e, phi);
+    long c = modexp(m, e, n);  // encryption
+    long decrypted = modexp(c, d, n);  // decryption
+
+    printf("Public key (e, n): (%ld, %ld)\n", e, n);
+    printf("Private key (d, n): (%ld, %ld)\n", d, n);
+    printf("Encrypted message: %ld\n", c);
+    printf("Decrypted message: %ld\n", decrypted);
+
+    return 0;
+}
+
+                        `
+            } />
+
+        </>
+    )
 }
 
 export default App
-
