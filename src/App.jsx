@@ -63,75 +63,69 @@ return 0;
                 `
             } />
 
-            {/* <One topic={"exp01.byte_stuff"} text={
+            <One topic={"Socket Client"} text={
                 `
-                        #include<stdio.h>
-#include<string.h>
-#define DLE 16
-#define STX 2
-#define ETX 3
-int main()
-{
-char ch;
-char arr[100]={DLE,STX};
- int i=2,j;
-printf("\\n Enter the data stream(CTRL+B->STX,CTRL+C->ETX,CTRL+P->DLE):\\n");
-do
- {
- scanf("%c", &ch);
- printf("char is ",ch);
- if(ch=='\\n')
- break;
- if(ch==DLE)
- {
- arr[i++]=DLE;
- printf("DLE");
- }
- else if(ch==2)
-  printf("STX");
- else if(ch==3)
-  printf("ETX");
- else
- printf("%c",ch);
- arr[i++]=ch;
- }
- while(ch!='\\n');
- arr[i++]=DLE;
- arr[i++]=ETX;
-printf("\\n The stuffed stream is \\n");
-for(j=0;j<i;j++)
- {
- if(arr[j]==DLE)
-  printf("DLE");
- else if(arr[j]==STX)
-  printf("STX");
- else if(arr[j]==ETX)
-  printf("ETX");
- else
-  printf("%c",arr[j]);
- }
-printf("\\n The de-stuffed data is \\n");
-for(j=2;j<i-2;j++)
- {
- if(arr[j]==DLE)
- {
- printf("DLE");
- j++;
- }
- else if(arr[j]==STX)
- printf("STX");
-else if(arr[j]==ETX)
- printf("ETX");
- else
- printf("%c",arr[j]);
- }
-return 0;
+{// Client.c 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <unistd.h> 
+#include <string.h> 
+#include <sys/types.h> 
+#include <sys/socket.h> 
+#include <netinet/in.h> 
+#include <netdb.h>  
+Void error(const char *msg) 
+{ 
+Perror(msg); 
+Exit(0); 
+} 
+Int main(int argc, char *argv[]) 
+{ 
+Int sockfd, portno, n; 
+Struct sockaddr_in serv_addr; 
+Struct hostent *server; 
+Char buffer[256]; 
+If (argc < 3) { 
+Fprintf(stderr,”usage %s Enter your hostname & port number \\n”,  
+Argv[0]); 
+Exit(0); 
+} 
+Portno = atoi(argv[2]); 
+Sockfd = socket(AF_INET, SOCK_STREAM, 0); 
+If (sockfd < 0)  
+Error(“Client : Error While opening socket”); 
+Server = gethostbyname(argv[1]); 
+If (server == NULL) { 
+Fprintf(stderr,”Client : Error, host not found\\n”); 
+Exit(0); 
+} 
+Bzero((char *) &serv_addr, sizeof(serv_addr)); 
+Serv_addr.sin_family = AF_INET; 
+Bcopy((char *)server->h_addr,  
+(char *)&serv_addr.sin_addr.s_addr, 
+Server->h_length); 
+Serv_addr.sin_port = htons(portno); 
+if (connect(sockfd,(struct sockaddr *)  
+&serv_addr,sizeof(serv_addr)) < 0)  
+error("Client : Error while connecting to server"); 
+printf("Please enter your message: "); 
+bzero(buffer,256); 
+fgets(buffer,255,stdin); 
+n = write(sockfd,buffer,strlen(buffer)); 
+if (n < 0)  
+error("Client : Error while writing to socket"); 
+bzero(buffer,256); 
+n = read(sockfd,buffer,255); 
+if (n < 0)  
+error(" Client : Error while reading from socket"); 
+printf("%s\\n",buffer); 
+close(sockfd); 
+return 0; 
 }
-
-                        `
+                `
             } />
 
-            <One topic={"exp01.CRC"} text={
+            {/* <One topic={"exp01.CRC"} text={
                 `
 #include <stdio.h>
 
