@@ -4,65 +4,66 @@ function App() {
 
     return (
         <div style={{ padding: "20px" }}>
-            <One topic={"exp01.bit_stuff"} text={
+            <One topic={"socket server"} text={
                 `
-/* Program for BIT STUFFING and DESTUFFING */
-#include <stdio.h>
-#include <string.h>
-
-int main(){
-    char ch, array[50]="01111110", read_array[50];
-    int count=0,i=8,j,k;
-    printf("enter the data to be tx: ");
-    do{
-        scanf("%c", &ch);
-        if(ch=='\\n'){
-            break;
-        }
-        if(ch=='1'){
-            count++;
-            array[i++]=ch;
-            if(count==5){
-                array[i++]='0';
-                count=0;
-            }
-        }
-        else{
-            count=0;
-            array[i++]=ch;
-            }
-            }while(ch!='\\n');
-            
-        strcat(array,"01111110");
-        printf("the transmitted data after stuffing is: %s",array);
-        j=strlen(array);
-        count=0,k=0;
-        for(i=8;i<j-8;i++){
-            if(array[i]=='1'){
-                count++;
-                read_array[k++]=array[i];
-                if(count==5 && array[i+1]=='0'){
-                    i++;
-                    count=0;
-                }
-            }
-            else{
-                count=0;
-                read_array[k++]=array[i];
-                }
-           
-        }
-        read_array[k]='\\0';
-        printf("\\n destuffed data at the reciever is ");
-        for(i=0;i<k;i++){
-            printf("%c",read_array[i]);
-        }
-        return 0;
-}
-                        `
+/ Server.c 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <unistd.h> 
+#include <sys/types.h>  
+#include <sys/socket.h> 
+#include <netinet/in.h> 
+void error(const char *msg) 
+{ 
+perror(msg); 
+exit(1); 
+} 
+int main(int argc, char *argv[]) 
+{ 
+int sockfd, newsockfd, portno; 
+socklen_t clilen; 
+char buffer[256]; 
+struct sockaddr_in serv_addr, cli_addr; 
+int n; 
+if (argc < 2) 
+{ 
+fprintf(stderr,"You have'nt provided port Number, please enter port number\\n"); 
+exit(1); 
+} 
+sockfd = socket(AF_INET, SOCK_STREAM, 0); 
+if (sockfd < 0)  
+error("Server : error at port opening"); 
+bzero((char *) &serv_addr, sizeof(serv_addr)); 
+portno = atoi(argv[1]); 
+serv_addr.sin_family = AF_INET; 
+serv_addr.sin_addr.s_addr = INADDR_ANY; 
+serv_addr.sin_port = htons(portno); 
+if (bind(sockfd, (struct sockaddr *) &serv_addr, 
+sizeof(serv_addr)) < 0)  
+error("Server : Error at binding"); 
+listen(sockfd,5); 
+clilen = sizeof(cli_addr); 
+newsockfd = accept(sockfd,  
+(struct sockaddr *) &cli_addr,  
+&clilen); 
+if (newsockfd < 0)  
+error("Server : Error while accepting"); 
+bzero(buffer,256); 
+n = read(newsockfd,buffer,255); 
+if (n < 0) error("Server : ERROR reading from socket"); 
+printf("MY message is : %s\\n",buffer); 
+n = write(newsockfd,"I Have Recieved your message",30); 
+if (n < 0) error("Server : Error while writing to server"); 
+close(newsockfd); 
+close(sockfd); 
+return 0;  
+ 
+} 
+                `
             } />
 
-            <One topic={"exp01.byte_stuff"} text={
+            {/* <One topic={"exp01.byte_stuff"} text={
                 `
                         #include<stdio.h>
 #include<string.h>
@@ -671,7 +672,7 @@ int main() {
 }
 
                         `
-            } />
+            } /> */}
 
         </div>
     )
