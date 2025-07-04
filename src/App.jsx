@@ -125,7 +125,7 @@ return 0;
                 `
             } />
 
-            {/* <One topic={"exp01.CRC"} text={
+            <One topic={"exp01.CRC"} text={
                 `
 #include <stdio.h>
 
@@ -666,7 +666,7 @@ int main() {
 }
 
                         `
-            } /> */}
+            } /> 
 
         </div>
     )
