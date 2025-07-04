@@ -596,7 +596,7 @@ int main() {
                         `
             } />
 
-            <One topic={"exp08.RSA"} text={
+            {/* <One topic={"exp08.RSA"} text={
                 `
 #include <stdio.h>
 
@@ -666,7 +666,7 @@ int main() {
 }
 
                         `
-            } /> 
+            } />  */}
 
         </div>
     )
