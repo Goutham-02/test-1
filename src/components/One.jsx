@@ -1,5 +1,3 @@
-import React from 'react';
-
 const One = (props) => {
   const handleClick = () => {
     const copy = Object.values(props).join(' ');

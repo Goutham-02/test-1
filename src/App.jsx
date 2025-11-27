@@ -4,360 +4,340 @@ function App() {
 
     return (
         <div style={{ padding: "20px" }}>
-            <One topic={"storage"} text={
+            <One topic={"led"} text={
                 `
-Mapper Program — mapper.py 
-#!/usr/bin/env python3 
-import sys 
- 
-# Read input line by line from STDIN 
-for line in sys.stdin: 
-    line = line.strip() 
-    if not line or line.startswith("user_id"):  # skip header 
-        continue 
-    try: 
-        user_id, event_type, value = line.split(",") 
-        print(f"{event_type}\\t1") 
-    except ValueError: 
-        continue 
-Reducer Program — reducer.py 
-#!/usr/bin/env python3 
-import sys 
- 
-current_event = None 
-current_count = 0 
- 
-for line in sys.stdin: 
-    line = line.strip() 
-    if not line: 
-        continue 
-    event_type, count = line.split("\\t") 
-    count = int(count) 
-     
-    if current_event == event_type: 
-        current_count += count 
-    else: 
-        if current_event: 
-            print(f"{current_event}\\t{current_count}") 
-        current_event = event_type 
-        current_count = count 
- 
-# print last event 
-if current_event: 
-    print(f"{current_event}\\t{current_count}")
+void setup() {
+  pinMode(2, OUTPUT);
+}
 
+void loop() {
+  digitalWrite(2, HIGH);
+  delay(1000);
+  digitalWrite(2, LOW);
+  delay(1000);
+}
+
+void setup() {
+  // put your setup code here, to run once: 
+  pinMode(2, OUTPUT);
+  pinMode(35, INPUT);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly: 
+  if (digitalRead(35) == HIGH) {
+    digitalWrite(2, HIGH);
+  } else {
+    digitalWrite(2, LOW);
+  }
+}
               `
             } />
 
-            <One topic={"application"} text={
+            <One topic={"ldr"} text={
                 `
-Mapper Program — mapper.py 
-#!/usr/bin/env python3 
-import sys 
-# Each input line is: product,price 
-for line in sys.stdin: 
-    line = line.strip() 
-    if not line or line.startswith("product"): 
-        continue 
-    try: 
-        product, price = line.split(",") 
-     print(f"{product}\\t{price}") 
-    except ValueError: 
-        continue 
-Reducer Program — reducer.py 
-#!/usr/bin/env python3 
-import sys 
- 
-current_product = None 
-current_total = 0.0 
- 
-for line in sys.stdin: 
-    line = line.strip() 
-    if not line: 
-        continue 
-    product, price = line.split("\\t") 
-    price = float(price) 
- 
-    if current_product == product: 
-        current_total += price 
-    else: 
-        if current_product: 
-            print(f"{current_product}\\t{current_total}") 
-        current_product = product 
-        current_total = price 
- 
-# Print the last product total 
-if current_product: 
-    print(f"{current_product}\\t{current_total}") 
+void setup() { 
+  pinMode(2, OUTPUT);
+  pinMode(35, INPUT);
+}
+
+void loop() {
+  if (analogRead(36) <= 800) {
+    digitalWrite(2, HIGH);
+  } else {
+    digitalWrite(2, LOW);
+  }
+}
               `
             } />
 
-            <One topic={"mongo"} text={
+            <One topic={"humidity"} text={
                 `
-Mapper Program — mapper.py 
-#!/usr/bin/env python3 
-import sys 
- 
-# Input Format: product,category,price 
-for line in sys.stdin: 
-    line = line.strip() 
-    if not line or line.startswith("product"): 
-        continue 
-    try: 
-        product, category, price = line.split(",") 
-        price = float(price) 
-        # Emit category and price 
-        print(f"{category}\\t{price}") 
-    except ValueError: 
-        continue 
-Reducer Program — reducer.py 
-#!/usr/bin/env python3 
-import sys 
- 
-current_category = None 
-total_sales = 0 
- 
-for line in sys.stdin: 
-    line = line.strip() 
-    if not line: 
-        continue 
-    category, price = line.split("\\t") 
-    price = float(price) 
- 
-    if current_category == category: 
-        total_sales += price 
-    else: 
-        if current_category: 
-            print(f"{current_category}\\t{total_sales}") 
-        current_category = category 
-        total_sales = price 
- 
-if current_category: 
-    print(f"{current_category}\\t{total_sales}")
+#include "DHT.h"
+#define DHTPIN 4
+#define DHTTYPE DHT11
 
-    Step 1: Start MongoDB 
-sudo systemctl start mongod 
-Step 2: Open Mongo Shell 
-mongo 
-Step 3: Create Database and Collection 
-use salesdb 
-db.createCollection("category_sales") 
-Step 4: Insert Output Data 
-db.category_sales.insertMany([ 
-    { category: "Electronics", total_sales: 222000 }, 
-    { category: "Furniture", total_sales: 75000 } 
-]) 
-Step 5: Verify Data 
-db.category_sales.find().pretty()
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+}
+
+void loop() {
+  delay(2000);
+
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  float f = dht.readTemperature(true);
+
+  if (isnan(h) || isnan(t) || isnan(f)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
+  float hif = dht.computeHeatIndex(f, h);
+  float hic = dht.computeHeatIndex(t, h, false);
+
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print("%  Temperature: ");
+  Serial.print(t);
+  Serial.print("°C, ");
+  Serial.print(f);
+  Serial.print("°F  Heat index: ");
+  Serial.print(hic);
+  Serial.print("°C, ");
+  Serial.print(hif);
+  Serial.println("°F");
+}
                 `
             } />
 
-            <One topic={"mr_calc"} text={
+            <One topic={"ldr"} text={
                 `
-Mapper Program — mapper.py 
-#!/usr/bin/env python3 
-import sys 
- 
-# Mapper: reads each line and emits number as key-value 
-for line in sys.stdin: 
-    line = line.strip() 
-    if not line: 
-        continue 
-    try: 
-        num = float(line) 
-        # Emit as key-value pair 
-        print(f"num\\t{num}") 
-    except ValueError: 
-        continue 
-Reducer Program — reducer.py 
-#!/usr/bin/env python3 
-import sys 
- 
-count = 0 
-total = 0 
-min_val = None 
-max_val = None 
- 
-# Reducer: calculates sum, average, min, max 
-for line in sys.stdin: 
-    line = line.strip() 
-    if not line: 
-        continue 
-    key, value = line.split("\\t") 
-    value = float(value) 
-    total += value 
-    count += 1 
-    if min_val is None or value < min_val: 
-        min_val = value 
-    if max_val is None or value > max_val: 
-        max_val = value 
- 
-if count > 0: 
-    avg = total / count 
-    print(f"Total Sum = {total}") 
-    print(f"Average = {avg}") 
-    print(f"Minimum = {min_val}") 
-    print(f"Maximum = {max_val}") 
+const int IR_PIN = 33;
+const int BUZZER_PIN = 14;
+
+bool INVERT_LOGIC = true;
+
+const unsigned long beepMs = 200;
+const unsigned long holdoff = 400;
+
+int lastState = -1;
+
+bool isDetected(int raw) {
+  return INVERT_LOGIC ? (raw == LOW) : (raw == HIGH);
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(IR_PIN, INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  int r = digitalRead(IR_PIN);
+  lastState = r;
+}
+
+void loop() {
+  int r = digitalRead(IR_PIN);
+  if (r != lastState) {
+    lastState = r;
+    if (isDetected(r)) {
+      Serial.println("Obstacle detected");
+      digitalWrite(BUZZER_PIN, HIGH);
+      delay(beepMs);
+      digitalWrite(BUZZER_PIN, LOW);
+    } else {
+      Serial.println("No obstacle");
+    }
+    delay(holdoff);
+  }
+}
               `
             } />
 
-            <One topic={"mr_algo"} text={
+            <One topic={"lcd"} text={
                 `
-Mapper Program — mapper.py 
-#!/usr/bin/env python3 
-import sys 
- 
-# Mapper: reads each line and splits into words 
-for line in sys.stdin: 
-    line = line.strip() 
-    words = line.split() 
-    for word in words: 
-        print(f"{word.lower()}\\t1") 
-Reducer Program — reducer.py 
-#!/usr/bin/env python3 
-import sys 
- 
-current_word = None 
-current_count = 0 
-word = None 
- 
-# Reducer: sums counts for each unique word 
-for line in sys.stdin: 
-    line = line.strip() 
-    word, count = line.split('\\t', 1) 
-    try: 
-        count = int(count) 
-    except ValueError: 
-        continue 
- 
-    if current_word == word: 
-        current_count += count 
-    else: 
-        if current_word: 
-            print(f"{current_word}\\t{current_count}") 
-        current_word = word 
-        current_count = count 
- 
-# Output last word 
-if current_word == word: 
-    print(f"{current_word}\\t{current_count}") 
+#include <LiquidCrystal_I2C.h>
+
+#define LCD_ADDR 0x27
+LiquidCrystal_I2C lcd(LCD_ADDR, 16, 2);
+
+String nameStr = "Your Name";
+String semStr  = "Sem: 5";
+String deptStr = "Dept: CSE";
+String colStr  = "College: GAT";
+
+void setup() {
+  Serial.begin(115115);
+  lcd.init();
+  lcd.backlight();
+}
+
+void loop() {
+  lcd.clear();
+  lcd.setCursor(0,0); lcd.print(nameStr);
+  lcd.setCursor(0,1); lcd.print(semStr);
+  delay(2000);
+
+  lcd.clear();
+  lcd.setCursor(0,0); lcd.print(deptStr);
+  lcd.setCursor(0,1); lcd.print(colStr);
+  delay(2000);
+}
                `
             } />
 
-            <One topic={"LR"} text={
+            <One topic={"IR"} text={
                 `
-i) Linear Regression 
-import numpy as np 
-import matplotlib.pyplot as plt 
-import pandas as pd 
- 
-dataset = pd.read_csv('salary_Data.csv') 
-X = dataset.iloc[:, :-1].values 
-y = dataset.iloc[:, 1].values 
- 
-from sklearn.model_selection import train_test_split 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1/3, random_state = 0) 
- 
-from sklearn.linear_model import LinearRegression 
-regressor = LinearRegression() 
-regressor.fit(X_train, y_train) 
- 
-y_pred = regressor.predict(X_test) 
-#Visualizing Training set results 
-plt.scatter(X_train, y_train, color = 'red') 
-plt.plot(X_train, regressor.predict(X_train), color = 'blue') 
-plt.title('Salary vs Experience {Training set}') 
-plt.xlabel('Years of experience') 
-plt.ylabel('Salary') 
-plt.show() 
-#Visualizing Test set results 
-plt.scatter(X_test, y_test, color = 'red') 
-plt.plot(X_train, regressor.predict(X_train), color = 'blue') 
-plt.title('Salary vs Experience {Test set}') 
-plt.xlabel('Years of experience') 
-plt.ylabel('Salary') 
-plt.show() 
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-ii) Logistic Regression 
-import numpy as np 
-import pandas as pd 
-import matplotlib.pyplot as plt 
-import seaborn as sns 
-from sklearn.datasets import load_diabetes 
-from sklearn.model_selection import train_test_split 
-from sklearn.preprocessing import StandardScaler 
-from sklearn.linear_model import LogisticRegression 
-from sklearn.metrics import accuracy_score,classification_report,confusion_matrix,roc_curve,auc 
- 
-diabetes = load_diabetes() 
-x,y=diabetes.data,diabetes.target 
- 
-y_binary=(y>np.median(y)).astype(int) 
-x_train,x_test,y_train,y_test = train_test_split(x,y_binary,test_size = 0.2,random_state=42) 
-Scaler = StandardScaler() 
-x_train=Scaler.fit_transform(x_train) 
-x_test=Scaler.transform(x_test) 
- 
-model=LogisticRegression() 
-model.fit(x_train,y_train) 
- 
-y_pred=model.predict(x_test) 
-acc=accuracy_score(y_test,y_pred) 
-print("Accuracy :{:.2f} %",format(acc*100)) 
-print("Confusion Matrix ;\\n",confusion_matrix(y_test,y_pred)) 
-print("Classification Report ;\\n",classification_report(y_test,y_pred)) 
- 
-plt.figure(figsize=(8,6)) 
-sns.scatterplot(x=x_test[:,2],y=x_test[:,8],hue=y_test,palette={0:'blue',1:'red'},marker='o') 
- 
-plt.xlabel("BMI") 
-plt.ylabel("AGC") 
-plt.title("LOGISTIC REGRESSION Decision Boundary \\n Accuracy ; ") 
-plt.legend(title="Diabetes",loc="upper right") 
-plt.show() 
+const int TRIG_PIN = 12;
+const int ECHO_PIN = 35;
 
+float usToCm(long us) {
+  return (us * 0.0343f) / 2.0f;
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0,0); 
+  lcd.print("Ultrasonic Ready");
+  delay(800);
+}
+
+long readUS() {
+  digitalWrite(TRIG_PIN, LOW); 
+  delayMicroseconds(4);
+  digitalWrite(TRIG_PIN, HIGH); 
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  return pulseIn(ECHO_PIN, HIGH, 25000UL);
+}
+
+void loop() {
+  const int N = 5;
+  long sum = 0;
+  int valid = 0;
+
+  for (int i = 0; i < N; i++) {
+    long d = readUS();
+    if (d > 0) { sum += d; valid++; }
+    delay(40);
+  }
+
+  lcd.clear();
+
+  if (valid == 0) {
+    lcd.setCursor(0,0); lcd.print("Out of range");
+    lcd.setCursor(0,1); lcd.print("Try closer");
+    Serial.println("No echo");
+  } else {
+    float us = (float)sum / valid;
+    float cm = usToCm(us);
+    lcd.setCursor(0,0); 
+    lcd.print("Dist: "); 
+    lcd.print(cm, 1); 
+    lcd.print(" cm");
+    Serial.printf("us=%.1f  cm=%.2f\n", us, cm);
+  }
+
+  delay(300);
+}
                `
             } />
 
-            <One topic={"Mining"} text={
+            <One topic={"7"} text={
                 `
-Mapper Program — mapper.py 
-#!/usr/bin/env python3 
-import sys 
-import re 
- 
-# Mapper: performs tokenization and emits (word, 1) 
-for line in sys.stdin: 
-    line = line.strip().lower() 
-    words = re.findall(r"[a-zA-Z]+", line) 
-    for word in words: 
-        print(f"{word}\\t1")
-Reducer Program — reducer.py 
-#!/usr/bin/env python3 
-import sys 
- 
-current_word = None 
-current_count = 0 
- 
-# Reducer: sums counts for each unique word 
-for line in sys.stdin: 
-    line = line.strip() 
-    word, count = line.split('\\t', 1) 
-    try: 
-        count = int(count) 
-    except ValueError: 
-        continue 
- 
-    if current_word == word: 
-        current_count += count 
-    else: 
-        if current_word: 
-            print(f"{current_word}\\t{current_count}") 
-        current_word = word 
-        current_count = count 
- 
-if current_word == word: 
-    print(f"{current_word}\\t{current_count}") 
+#include "WiFi.h"
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  delay(100);
+}
+
+void loop() {
+  Serial.println("scan start");
+  int n = WiFi.scanNetworks();
+  Serial.println("scan done");
+
+  if (n == 0) {
+    Serial.println("no networks found");
+  } else {
+    Serial.print(n);
+    Serial.println(" networks found");
+    for (int i = 0; i < n; ++i) {
+      Serial.print(i + 1);
+      Serial.print(": ");
+      Serial.print(WiFi.SSID(i));
+      Serial.print(" (");
+      Serial.print(WiFi.RSSI(i));
+      Serial.print(")");
+      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
+      delay(10);
+    }
+  }
+
+  Serial.println();
+  delay(5000);
+}
+
+#include <WiFi.h>
+
+const char *ssid = "SSID_Name_your_Choice";
+const char *password = "Your_Choice"; 
+IPAddress local_IP(192,168,4,22);
+IPAddress gateway(192,168,4,9);
+IPAddress subnet(255,255,255,0);
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println();
+  Serial.print("Soft-AP config: ");
+  Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed");
+  Serial.print("Soft-AP start: ");
+  Serial.println(WiFi.softAP(ssid, password) ? "Ready" : "Failed");
+  Serial.print("Soft-AP IP = ");
+  Serial.println(WiFi.softAPIP());
+}
+
+void loop() {
+  Serial.print("[Server Connected] ");
+  Serial.println(WiFi.softAPIP());
+  delay(500);
+}
+               `
+            } />
+
+             <One topic={"7"} text={
+                `
+#include <WiFi.h>
+
+char ssid[] = "REPLACE_WITH_YOUR_SSID";
+char password[] = "REPLACE_WITH_YOUR_PASSWORD";
+
+IPAddress ip;
+IPAddress gateway;
+
+void setup() {
+  Serial.begin(115200);
+  Serial.print("Connecting to: ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(300);
+  }
+
+  Serial.println("\nConnected to network");
+
+  while (WiFi.localIP() == INADDR_NONE) {
+    Serial.print(".");
+    delay(300);
+  }
+
+  ip = WiFi.localIP();
+  gateway = WiFi.gatewayIP();
+
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+  Serial.print("Gateway: ");
+  Serial.println(gateway);
+}
+
+void loop() {
+}
                `
             } />
 
