@@ -223,71 +223,180 @@ int main() {
 
             <One topic={"2.1 Temperature & Humidity (DHT11)"} text={
                 `
-# Reads DHT11 and uploads to ThingSpeak [cite: 1025]
 import RPi.GPIO as GPIO
+import time
+import math
 import Adafruit_DHT as dht
 import urllib.request as urllib2
+import Adafruit_MCP3008
 
-myAPI = "PJTVJHOYGXLPNTOW" # [cite: 1034]
+myAPI = 'PJTVJHOYGXLPNTOW'
 baseURL = 'https://api.thingspeak.com/update?api_key=%s' % myAPI
 
+GPIO.setmode(GPIO.BCM)
 sensor = dht.DHT11
 dht11_pin = 4
+temp = 0.0
+humidity = 0.0
+
+print("*******")
+print("IOT DEVELOPMENT KIT")
+print("*******")
 
 while True:
-    humidity, temp = dht.read_retry(sensor, dht11_pin)
-    if temp is not None:
-        conn = urllib2.urlopen(baseURL + '&field1=%s&field2=%s' % (temp, humidity))
-        print('Data sent to cloud successfully')
+    try:
+        print('scanning for the sensor data')
+        time.sleep(2)
+        print("-------")
+        humidity, temp = dht.read_retry(sensor, dht11_pin)
+
+        if math.isnan(temp) == False and math.isnan(humidity) == False:
+            print("Temperature=%.02fC" % (temp))
+            print("Humidity=%.02f%%" % (humidity))
+            conn = urllib2.urlopen(baseURL + '&field1=%s&field2=%s' % (temp, humidity))
+            print('data sent to the cloud successfully')
+            print("-------")
+            time.sleep(1)
+    except:
+        print("One iteration completed")
+
                 `
             } />
 
             <One topic={"2.2 Ultrasonic Sensor"} text={
                 `
-# Measures distance and uploads to ThingSpeak [cite: 1081]
 import RPi.GPIO as GPIO
 import time
+import math
 import urllib.request as urllib2
+
+myAPI = 'F8PWSPRDNLUW1UFX'
+baseURL = 'https://api.thingspeak.com/update?api_key=%s' % myAPI
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(19, GPIO.OUT)
+GPIO.setup(26, GPIO.IN)
 
 trig_pin = 19
 echo_pin = 26
+distance = 0.0
+duration = 0.0
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(trig_pin, GPIO.OUT)
-GPIO.setup(echo_pin, GPIO.IN)
+print("**************")
+print("IOT Development Kit")
+print("**************")
 
-# Logic to trigger pulse and calculate duration [cite: 1133-1146]
-# distance = pulse_duration * 17150
+while True:
+    try:
+        GPIO.output(trig_pin, False)
+        print("Scanning for Sensor Data")
+        time.sleep(2)
+        GPIO.output(trig_pin, False)
+        print("Waiting for sensor To settle")
+        GPIO.output(trig_pin, True)
+        time.sleep(0.00001)
+        GPIO.output(trig_pin, False)
+
+        while GPIO.input(echo_pin) == 0:
+            pulse_start = time.time()
+        while GPIO.input(echo_pin) == 1:
+            pulse_end = time.time()
+
+        pulse_duration = pulse_end - pulse_start
+        distance = pulse_duration * 17150
+
+        if distance > 2 and distance < 400:
+            print("Distance:", distance - 0.5, "cm")
+        else:
+            print("out of range")
+
+        conn = urllib2.urlopen(baseURL + '&field1=%s' % (distance))
+        print("Data sent to cloud")
+    except:
+        print("exception")
                 `
             } />
 
             <One topic={"2.3 Soil Moisture Sensor"} text={
                 `
-# Reads analog data via MCP3008 ADC [cite: 1157]
-import Adafruit_MCP3008
+import RPi.GPIO as GPIO
+import time
+import math
 import urllib.request as urllib2
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_MCP3008
 
-mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(0, 0))
+myAPI = 'BH4DQ9XVXQ2ABJCU'
+baseURL = 'https://api.thingspeak.com/update?api_key=%s' % myAPI
+
+SPI_PORT = 0
+SPI_DEVICE = 0
+MCP = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(13, GPIO.IN)
+GPIO.setup(19, GPIO.OUT)
+GPIO.setup(26, GPIO.IN)
+
+echo_pin = 26
+moisture_value = 0.0
+
+print("Label 1")
+print("IOT Development Kit")
 
 while True:
-    moisture_value = mcp.read_adc(1) # [cite: 1188]
-    conn = urllib2.urlopen(baseURL + '&field1=%s' % (moisture_value))
+    try:
+        print("Scanning for sensor data")
+        time.sleep(2)
+        moisture_value = MCP.read_adc(1)
+        print("Soil Moisture value:")
+        print(moisture_value)
+        conn = urllib2.urlopen(baseURL + '&field1=%s' % (moisture_value))
+        print("Data sent to cloud")
+        time.sleep(5)
+    except:
+        print("Exception")
+
                 `
             } />
 
             <One topic={"2.4 Light Sensor"} text={
                 `
-# Detects light presence via GPIO [cite: 1209]
-import RPi.GPIO as GPIO
 import urllib.request as urllib2
+import RPi.GPIO as GPIO
+import time
+
+myAPI = 'RNT37FAQL5EJVVU2'
+baseURL = 'https://api.thingspeak.com/update?api_key=%s' % myAPI
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(13, GPIO.IN)
 
 light_sensor_pin = 13
-GPIO.setup(light_sensor_pin, GPIO.IN)
+light_value = 0
+
+print("IOT DEVELOPMENT BIT")
 
 while True:
-    light_value = GPIO.input(light_sensor_pin) # [cite: 1234]
-    if light_value == 0:
-        print("light detected")
+    try:
+        print("scanning for sensor's data...")
+        time.sleep(2)
+        light_value = GPIO.input(light_sensor_pin)
+
+        if light_value == 0:
+            print("light detected")
+        else:
+            print("light not detected")
+
+        print("waiting for sensor to settle")
+        time.sleep(2)
+
+        conn = urllib2.urlopen(baseURL + '&field1=%s' % (light_value))
+        print("data sent to cloud")
+        time.sleep(5)
+    except:
+        print("iteration completed")
+
                 `
             } />
 
