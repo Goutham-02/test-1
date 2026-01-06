@@ -4,341 +4,291 @@ function App() {
 
     return (
         <div style={{ padding: "20px" }}>
-            <One topic={"led"} text={
+            <h2>Part A: Networking & Security (C Programming)</h2>
+            <hr />
+
+            <One topic={"1.1 Caesar Cipher Variant"} text={
                 `
-void setup() {
-  pinMode(2, OUTPUT);
-}
+// Shifting characters by 3 positions with wrapping [cite: 8]
+#include <stdio.h>
+#include <string.h>
 
-void loop() {
-  digitalWrite(2, HIGH);
-  delay(1000);
-  digitalWrite(2, LOW);
-  delay(1000);
-}
+int main() {
+    char msg[100], encr[100], decr[100], rec[100];
+    int i;
 
-void setup() {
-  // put your setup code here, to run once: 
-  pinMode(2, OUTPUT);
-  pinMode(35, INPUT);
-}
+    printf("\\n Enter the message for encryption:\\n");
+    scanf("%s", msg);
 
-void loop() {
-  // put your main code here, to run repeatedly: 
-  if (digitalRead(35) == HIGH) {
-    digitalWrite(2, HIGH);
-  } else {
-    digitalWrite(2, LOW);
-  }
-}
-              `
-            } />
-
-            <One topic={"ldr"} text={
-                `
-void setup() { 
-  pinMode(2, OUTPUT);
-  pinMode(35, INPUT);
-}
-
-void loop() {
-  if (analogRead(36) <= 800) {
-    digitalWrite(2, HIGH);
-  } else {
-    digitalWrite(2, LOW);
-  }
-}
-              `
-            } />
-
-            <One topic={"humidity"} text={
-                `
-#include "DHT.h"
-#define DHTPIN 4
-#define DHTTYPE DHT11
-
-DHT dht(DHTPIN, DHTTYPE);
-
-void setup() {
-  Serial.begin(115200);
-  dht.begin();
-}
-
-void loop() {
-  delay(2000);
-
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  float f = dht.readTemperature(true);
-
-  if (isnan(h) || isnan(t) || isnan(f)) {
-    Serial.println("Failed to read from DHT sensor!");
-    return;
-  }
-
-  float hif = dht.computeHeatIndex(f, h);
-  float hic = dht.computeHeatIndex(t, h, false);
-
-  Serial.print("Humidity: ");
-  Serial.print(h);
-  Serial.print("%  Temperature: ");
-  Serial.print(t);
-  Serial.print("°C, ");
-  Serial.print(f);
-  Serial.print("°F  Heat index: ");
-  Serial.print(hic);
-  Serial.print("°C, ");
-  Serial.print(hif);
-  Serial.println("°F");
-}
-                `
-            } />
-
-            <One topic={"ldr"} text={
-                `
-const int IR_PIN = 33;
-const int BUZZER_PIN = 14;
-
-bool INVERT_LOGIC = true;
-
-const unsigned long beepMs = 200;
-const unsigned long holdoff = 400;
-
-int lastState = -1;
-
-bool isDetected(int raw) {
-  return INVERT_LOGIC ? (raw == LOW) : (raw == HIGH);
-}
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(IR_PIN, INPUT);
-  pinMode(BUZZER_PIN, OUTPUT);
-  digitalWrite(BUZZER_PIN, LOW);
-
-  int r = digitalRead(IR_PIN);
-  lastState = r;
-}
-
-void loop() {
-  int r = digitalRead(IR_PIN);
-  if (r != lastState) {
-    lastState = r;
-    if (isDetected(r)) {
-      Serial.println("Obstacle detected");
-      digitalWrite(BUZZER_PIN, HIGH);
-      delay(beepMs);
-      digitalWrite(BUZZER_PIN, LOW);
-    } else {
-      Serial.println("No obstacle");
+    // Encryption Logic [cite: 22]
+    for (i = 0; *(msg + i) != '\\0'; i++) {
+        if ((*(msg + i) >= 'a' && *(msg + i) <= 'w') || (*(msg + i) >= 'A' && *(msg + i) <= 'W'))
+            *(encr + i) = *(msg + i) + 3;
+        else if ((*(msg + i) >= 'x' && *(msg + i) <= 'z') || (*(msg + i) >= 'X' && *(msg + i) <= 'Z'))
+            *(encr + i) = *(msg + i) + 3 - 26;
+        else
+            *(encr + i) = *(msg + i);
     }
-    delay(holdoff);
-  }
-}
-              `
-            } />
+    *(encr + i) = '\\0';
+    printf("\\n Encrypted message: %s\\n", encr);
 
-            <One topic={"lcd"} text={
-                `
-#include <LiquidCrystal_I2C.h>
-
-#define LCD_ADDR 0x27
-LiquidCrystal_I2C lcd(LCD_ADDR, 16, 2);
-
-String nameStr = "Your Name";
-String semStr  = "Sem: 5";
-String deptStr = "Dept: CSE";
-String colStr  = "College: GAT";
-
-void setup() {
-  Serial.begin(115115);
-  lcd.init();
-  lcd.backlight();
-}
-
-void loop() {
-  lcd.clear();
-  lcd.setCursor(0,0); lcd.print(nameStr);
-  lcd.setCursor(0,1); lcd.print(semStr);
-  delay(2000);
-
-  lcd.clear();
-  lcd.setCursor(0,0); lcd.print(deptStr);
-  lcd.setCursor(0,1); lcd.print(colStr);
-  delay(2000);
-}
-               `
-            } />
-
-            <One topic={"IR"} text={
-                `
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-
-const int TRIG_PIN = 12;
-const int ECHO_PIN = 35;
-
-float usToCm(long us) {
-  return (us * 0.0343f) / 2.0f;
-}
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-  lcd.init();
-  lcd.backlight();
-  lcd.setCursor(0,0); 
-  lcd.print("Ultrasonic Ready");
-  delay(800);
-}
-
-long readUS() {
-  digitalWrite(TRIG_PIN, LOW); 
-  delayMicroseconds(4);
-  digitalWrite(TRIG_PIN, HIGH); 
-  delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
-  return pulseIn(ECHO_PIN, HIGH, 25000UL);
-}
-
-void loop() {
-  const int N = 5;
-  long sum = 0;
-  int valid = 0;
-
-  for (int i = 0; i < N; i++) {
-    long d = readUS();
-    if (d > 0) { sum += d; valid++; }
-    delay(40);
-  }
-
-  lcd.clear();
-
-  if (valid == 0) {
-    lcd.setCursor(0,0); lcd.print("Out of range");
-    lcd.setCursor(0,1); lcd.print("Try closer");
-    Serial.println("No echo");
-  } else {
-    float us = (float)sum / valid;
-    float cm = usToCm(us);
-    lcd.setCursor(0,0); 
-    lcd.print("Dist: "); 
-    lcd.print(cm, 1); 
-    lcd.print(" cm");
-    Serial.printf("us=%.1f  cm=%.2f\n", us, cm);
-  }
-
-  delay(300);
-}
-               `
-            } />
-
-            <One topic={"7"} text={
-                `
-#include "WiFi.h"
-
-void setup() {
-  Serial.begin(115200);
-  WiFi.mode(WIFI_STA);
-  WiFi.disconnect();
-  delay(100);
-}
-
-void loop() {
-  Serial.println("scan start");
-  int n = WiFi.scanNetworks();
-  Serial.println("scan done");
-
-  if (n == 0) {
-    Serial.println("no networks found");
-  } else {
-    Serial.print(n);
-    Serial.println(" networks found");
-    for (int i = 0; i < n; ++i) {
-      Serial.print(i + 1);
-      Serial.print(": ");
-      Serial.print(WiFi.SSID(i));
-      Serial.print(" (");
-      Serial.print(WiFi.RSSI(i));
-      Serial.print(")");
-      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
-      delay(10);
+    // Decryption Logic [cite: 62]
+    printf("\\n Enter the message for decryption:\\n");
+    scanf("%s", rec);
+    for (i = 0; *(rec + i) != '\\0'; i++) {
+        if ((*(rec + i) >= 'd' && *(rec + i) <= 'z') || (*(rec + i) >= 'D' && *(rec + i) <= 'Z'))
+            *(decr + i) = *(rec + i) - 3;
+        else if ((*(rec + i) >= 'a' && *(rec + i) <= 'c') || (*(rec + i) >= 'A' && *(rec + i) <= 'C'))
+            *(decr + i) = *(rec + i) - 3 + 26;
+        else
+            *(decr + i) = *(rec + i);
     }
-  }
-
-  Serial.println();
-  delay(5000);
+    *(decr + i) = '\\0';
+    printf("\\n The decrypted message: \\n %s\\n", decr);
+    return 0;
 }
-
-#include <WiFi.h>
-
-const char *ssid = "SSID_Name_your_Choice";
-const char *password = "Your_Choice"; 
-IPAddress local_IP(192,168,4,22);
-IPAddress gateway(192,168,4,9);
-IPAddress subnet(255,255,255,0);
-
-void setup() {
-  Serial.begin(115200);
-  Serial.println();
-  Serial.print("Soft-AP config: ");
-  Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed");
-  Serial.print("Soft-AP start: ");
-  Serial.println(WiFi.softAP(ssid, password) ? "Ready" : "Failed");
-  Serial.print("Soft-AP IP = ");
-  Serial.println(WiFi.softAPIP());
-}
-
-void loop() {
-  Serial.print("[Server Connected] ");
-  Serial.println(WiFi.softAPIP());
-  delay(500);
-}
-               `
+                `
             } />
 
-             <One topic={"7"} text={
+            <One topic={"1.2 Columnar Transposition"} text={
                 `
-#include <WiFi.h>
+// Reordering columns based on a keyword [cite: 104]
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
-char ssid[] = "REPLACE_WITH_YOUR_SSID";
-char password[] = "REPLACE_WITH_YOUR_PASSWORD";
+int main() {
+    char txt[50], kw[10], kw1[10], temp;
+    char txt1[10][10], encr[10][10], decr[10][10];
+    int lenm, lenk, order[10], i, j, k, temp1, c = 0, r, b, count = 0;
 
-IPAddress ip;
-IPAddress gateway;
+    printf("\\nEnter the message to be encrypted: ");
+    scanf("%s", txt);
+    lenm = strlen(txt);
 
-void setup() {
-  Serial.begin(115200);
-  Serial.print("Connecting to: ");
-  Serial.println(ssid);
+    printf("\\nEnter the keyword: ");
+    scanf("%s", kw);
+    lenk = strlen(kw);
+    strcpy(kw1, kw);
 
-  WiFi.begin(ssid, password);
+    for (i = 0; i < lenk; i++) order[i] = i;
 
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(300);
-  }
+    // Sort keyword to determine column order [cite: 146]
+    for (i = 0; i < lenk; i++) {
+        for (j = i + 1; j < lenk; j++) {
+            if (kw1[i] > kw1[j]) {
+                temp = kw1[i]; kw1[i] = kw1[j]; kw1[j] = temp;
+                temp1 = order[i]; order[i] = order[j]; order[j] = temp1;
+            }
+        }
+    }
 
-  Serial.println("\nConnected to network");
+    r = lenm / lenk;
+    b = lenm % lenk;
+    if (b != 0) r++;
 
-  while (WiFi.localIP() == INADDR_NONE) {
-    Serial.print(".");
-    delay(300);
-  }
+    // Fill the matrix [cite: 205]
+    for (i = 0; i < r; i++) {
+        for (j = 0; j < lenk; j++) {
+            if (count < lenm) txt1[i][j] = txt[count++];
+            else txt1[i][j] = 'a' + c++;
+        }
+    }
 
-  ip = WiFi.localIP();
-  gateway = WiFi.gatewayIP();
+    printf("\\n\\nThe encrypted message: \\n");
+    for (k = 0; k < lenk; k++) {
+        j = order[k];
+        for (i = 0; i < r; i++) {
+            encr[i][k] = txt1[i][j];
+            printf("%c", encr[i][k]);
+        }
+    }
+    return 0;
+}
+                `
+            } />
 
-  Serial.print("IP Address: ");
-  Serial.println(ip);
-  Serial.print("Gateway: ");
-  Serial.println(gateway);
+            <One topic={"1.3 Byte Stuffing"} text={
+                `
+// Framing using DLE, STX, and ETX [cite: 303]
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char msg[100], smsg[100], tmsg[100];
+    int i, j;
+
+    printf("\\nEnter the message:\\n");
+    scanf("%s", msg);
+
+    // Stuffing [cite: 330]
+    for (i = 0, j = 0; *(msg + i) != '\\0'; i++, j++) {
+        if (!strncmp(msg + i, "DLE", 3)) {
+            strcat(smsg, "DLEDLE");
+            j += 5; i += 2;
+        } else {
+            *(smsg + j) = *(msg + i);
+        }
+    }
+    *(smsg + j) = '\\0';
+
+    strcpy(tmsg, "DLESTX");
+    strcat(tmsg, smsg);
+    strcat(tmsg, "DLEETX");
+    printf("\\nThe stuffed message is: \\n%s", tmsg);
+    return 0;
+}
+                `
+            } />
+
+            <One topic={"1.4 Bit Stuffing"} text={
+                `
+// Inserting 0 after five consecutive 1s [cite: 430]
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char msg[100], smsg[100];
+    int i, j = 0, count = 0;
+
+    printf("\\n Enter the message:\\n");
+    scanf("%s", msg);
+
+    for (i = 0; msg[i] != '\\0'; i++, j++) {
+        smsg[j] = msg[i];
+        if (msg[i] == '1') count++;
+        else count = 0;
+
+        if (count == 5) {
+            j++;
+            smsg[j] = '0';
+            count = 0;
+        }
+    }
+    smsg[j] = '\\0';
+    printf("\\n The stuffed message: \\n %s", smsg);
+    return 0;
+}
+                `
+            } />
+
+            <One topic={"1.5 Dijkstra's Algorithm"} text={
+                `
+// Calculates shortest path in a graph [cite: 593]
+#include <stdio.h>
+#define MAXNODE 10
+#define INFINITY 100
+
+int n;
+int dist[8][8] = { /* matrix contents from manual [cite: 600-665] */ };
+
+void shrt(int s, int t) {
+    // Dijkstra's Loop logic [cite: 740]
+    // ... (refer to manual section 1.5 for full logic)
 }
 
-void loop() {
+int main() {
+    int s, t;
+    printf("\\n Enter the no of nodes (Max 8): ");
+    scanf("%d", &n);
+    printf("\\n Enter source & dest nodes: ");
+    scanf("%d%d", &s, &t);
+    shrt(s, t);
+    return 0;
 }
-               `
+                `
+            } />
+
+            <One topic={"1.6 Cyclic Redundancy Check (CRC)"} text={
+                `
+// Error detection using generator polynomials [cite: 810]
+#include <stdio.h>
+int dg = 16, data[50];
+int gen[17] = {1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1}; // CRC-CCITT [cite: 816]
+
+void crc(int msg[]) {
+    // CRC calculation logic [cite: 920]
+}
+
+int main() {
+    // Input and CRC calculation flow [cite: 822]
+    return 0;
+}
+                `
+            } />
+
+            <br />
+            <h2>Part B: IoT Development (Python)</h2>
+            <hr />
+
+            <One topic={"2.1 Temperature & Humidity (DHT11)"} text={
+                `
+# Reads DHT11 and uploads to ThingSpeak [cite: 1025]
+import RPi.GPIO as GPIO
+import Adafruit_DHT as dht
+import urllib.request as urllib2
+
+myAPI = "PJTVJHOYGXLPNTOW" # [cite: 1034]
+baseURL = 'https://api.thingspeak.com/update?api_key=%s' % myAPI
+
+sensor = dht.DHT11
+dht11_pin = 4
+
+while True:
+    humidity, temp = dht.read_retry(sensor, dht11_pin)
+    if temp is not None:
+        conn = urllib2.urlopen(baseURL + '&field1=%s&field2=%s' % (temp, humidity))
+        print('Data sent to cloud successfully')
+                `
+            } />
+
+            <One topic={"2.2 Ultrasonic Sensor"} text={
+                `
+# Measures distance and uploads to ThingSpeak [cite: 1081]
+import RPi.GPIO as GPIO
+import time
+import urllib.request as urllib2
+
+trig_pin = 19
+echo_pin = 26
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(trig_pin, GPIO.OUT)
+GPIO.setup(echo_pin, GPIO.IN)
+
+# Logic to trigger pulse and calculate duration [cite: 1133-1146]
+# distance = pulse_duration * 17150
+                `
+            } />
+
+            <One topic={"2.3 Soil Moisture Sensor"} text={
+                `
+# Reads analog data via MCP3008 ADC [cite: 1157]
+import Adafruit_MCP3008
+import urllib.request as urllib2
+
+mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(0, 0))
+
+while True:
+    moisture_value = mcp.read_adc(1) # [cite: 1188]
+    conn = urllib2.urlopen(baseURL + '&field1=%s' % (moisture_value))
+                `
+            } />
+
+            <One topic={"2.4 Light Sensor"} text={
+                `
+# Detects light presence via GPIO [cite: 1209]
+import RPi.GPIO as GPIO
+import urllib.request as urllib2
+
+light_sensor_pin = 13
+GPIO.setup(light_sensor_pin, GPIO.IN)
+
+while True:
+    light_value = GPIO.input(light_sensor_pin) # [cite: 1234]
+    if light_value == 0:
+        print("light detected")
+                `
             } />
 
         </div>
