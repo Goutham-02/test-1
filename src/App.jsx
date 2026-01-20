@@ -184,15 +184,6 @@ colormap([1 1 1; 1 0 0; 0 0 1]);
 xlabel('OFDM Symbols'); ylabel('Subcarriers');
 title('Uplink Resource Grid: PRACH & PUCCH');`
             } />
-
-            <h2>Part C: IoT Sensors (Arduino/Embedded)</h2>
-            <hr />
-
-            <One topic={"2.1 Temperature & Humidity (DHT11)"} text={``} />
-            <One topic={"2.2 Ultrasonic Sensor"} text={``} />
-            <One topic={"2.3 Soil Moisture Sensor"} text={``} />
-            <One topic={"2.4 Light Sensor"} text={``} />
-
         </div>
     )
 }
